@@ -38,6 +38,7 @@ import "./styles.css";
 const API_URL = import.meta.env.VITE_API_URL || (import.meta.env.PROD ? "/api" : "http://localhost:3333/api");
 const APP_PASSWORD = import.meta.env.VITE_APP_PASSWORD || "1234";
 const AUTH_STORAGE_KEY = "jarvis_auth";
+const DEFAULT_CARD_STORAGE_KEY = "jarvis_default_card";
 const BASE_BALANCE = 0;
 const MONTH_NAMES = ["Janeiro","Fevereiro","Março","Abril","Maio","Junho","Julho","Agosto","Setembro","Outubro","Novembro","Dezembro"];
 const MONTH_SHORT = ["Jan","Fev","Mar","Abr","Mai","Jun","Jul","Ago","Set","Out","Nov","Dez"];
@@ -193,6 +194,18 @@ function monthsBetween(ym1, ym2) {
   const [y1, m1] = ym1.split("-").map(Number);
   const [y2, m2] = ym2.split("-").map(Number);
   return (y2 - y1) * 12 + (m2 - m1);
+}
+
+function installmentRemaining(inst, ym = todayYM()) {
+  const idx = monthsBetween(inst.startMonth, ym);
+  if (idx < 0) return inst.amountPerInstallment * inst.totalInstallments;
+  const remaining = Math.max(0, inst.totalInstallments - idx);
+  return inst.amountPerInstallment * remaining;
+}
+
+function installmentCurrentAmount(inst, ym = todayYM()) {
+  const idx = monthsBetween(inst.startMonth, ym);
+  return idx >= 0 && idx < inst.totalInstallments ? inst.amountPerInstallment : 0;
 }
 
 function decimalInput(value) {
@@ -463,6 +476,7 @@ function FinanceApp({ onLogout }) {
           {(modal?.type === "receita" || modal?.type === "despesa") && (
             <TransactionModal
               initialType={modal.type}
+              cards={model.cards}
               onClose={closeModal}
               onSubmit={async p => { await ops.createTransaction(p); closeModal(); }}
             />
@@ -889,13 +903,19 @@ function UpcomingBills({ model, month }) {
       list.push({ name: r.name, amount: r.amount, dueDay: r.dueDay, icon: r.icon, daysLeft });
     });
 
-    const creditTotal = model.cardExpense.reduce((s, tx) => s + tx.amount, 0);
-    if (creditTotal > 0) {
-      model.cards.forEach(card => {
+    model.cards.forEach((card, index) => {
+      let creditTotal = model.cardExpense
+        .filter(tx => tx.cardId ? tx.cardId === card.id : index === 0)
+        .reduce((s, tx) => s + tx.amount, 0);
+      const installmentTotal = (model.installments || [])
+        .filter(inst => inst.cardId === card.id)
+        .reduce((s, inst) => s + installmentCurrentAmount(inst, month), 0);
+      creditTotal += installmentTotal;
+      if (creditTotal > 0) {
         const daysLeft = isCurrent ? card.dueDay - todayDay : null;
         list.push({ name: `${card.name} · fatura`, amount: creditTotal, dueDay: card.dueDay, icon: "CreditCard", daysLeft });
-      });
-    }
+      }
+    });
 
     return list.sort((a, b) => {
       const aPast = a.daysLeft !== null && a.daysLeft < 0;
@@ -1081,10 +1101,15 @@ function InstallmentRow({ inst, onEdit, onDelete }) {
 
 function Cards({ model, selectedCard, setSelectedCard, openModal, deleteInstallment }) {
   const card = model.cards[selectedCard] || model.cards[0];
-  const cardExpenseForCard = model.cardExpense;
-  const used = cardExpenseForCard.reduce((s, tx) => s + tx.amount, 0);
-  const pct = card?.limit ? Math.round((used / card.limit) * 100) : 0;
   const cardInstallments = card ? (model.installments || []).filter(i => i.cardId === card.id) : [];
+  const cardExpenseForCard = card ? model.cardExpense.filter(tx => tx.cardId ? tx.cardId === card.id : selectedCard === 0) : [];
+  const installmentLimitUsed = cardInstallments.reduce((s, inst) => s + installmentRemaining(inst, todayYM()), 0);
+  const installmentInvoiceItems = cardInstallments
+    .map(inst => ({ ...inst, currentAmount: installmentCurrentAmount(inst, todayYM()) }))
+    .filter(inst => inst.currentAmount > 0);
+  const used = cardExpenseForCard.reduce((s, tx) => s + tx.amount, 0) + installmentLimitUsed;
+  const invoiceTotal = cardExpenseForCard.reduce((s, tx) => s + tx.amount, 0) + installmentInvoiceItems.reduce((s, inst) => s + inst.currentAmount, 0);
+  const pct = card?.limit ? Math.round((used / card.limit) * 100) : 0;
 
   return (
     <div className="screen">
@@ -1161,9 +1186,17 @@ function Cards({ model, selectedCard, setSelectedCard, openModal, deleteInstallm
 
               <section className="block">
                 <SectionTitle title="Fatura atual" />
-                {cardExpenseForCard.length ? (
+                {cardExpenseForCard.length || installmentInvoiceItems.length ? (
                   <div className="white-card list-card">
+                    {installmentInvoiceItems.map(inst => (
+                      <TransactionRow
+                        tx={{ id: `inst-${inst.id}`, type: "despesa", amount: inst.currentAmount, category: inst.category, description: `${inst.description} (parcela)`, method: "credito", icon: inst.icon || "CreditCard" }}
+                        invoice
+                        key={`inst-${inst.id}`}
+                      />
+                    ))}
                     {cardExpenseForCard.map(tx => <TransactionRow tx={tx} invoice key={tx.id} />)}
+                    <div className="invoice-total"><span>Total</span><strong>{money(invoiceTotal)}</strong></div>
                   </div>
                 ) : <Empty title="Sem despesas no crédito este mês" />}
               </section>
@@ -1394,16 +1427,20 @@ function ForecastView({ recurring, installments }) {
 
 // ─── Transaction modal ────────────────────────────────────────────────────────
 
-function TransactionModal({ initialType, onClose, onSubmit }) {
+function TransactionModal({ initialType, cards = [], onClose, onSubmit }) {
   const { expenseCats, incomeCats } = useCategories();
+  const storedDefaultCard = localStorage.getItem(DEFAULT_CARD_STORAGE_KEY);
+  const defaultCardId = cards.some(card => card.id === storedDefaultCard) ? storedDefaultCard : cards[0]?.id || "";
   const [entry, setEntry] = useState({
     type: initialType,
     amount: "",
     category: initialType === "receita" ? "Salario" : "Alimentacao",
     description: "",
     method: "pix",
+    cardId: defaultCardId,
     occurredOn: todayDate(),
   });
+  const [saveDefaultCard, setSaveDefaultCard] = useState(true);
   const [saving, setSaving] = useState(false);
   const categoryList = entry.type === "receita" ? incomeCats : expenseCats;
 
@@ -1411,14 +1448,23 @@ function TransactionModal({ initialType, onClose, onSubmit }) {
     setEntry(e => ({ ...e, type, category: type === "receita" ? "Salario" : "Alimentacao" }));
   }
 
+  function setMethod(method) {
+    setEntry(e => ({ ...e, method, cardId: method === "credito" ? e.cardId || defaultCardId : e.cardId }));
+  }
+
   async function submit(ev) {
     ev.preventDefault();
     if (!entry.amount) return;
+    if (entry.method === "credito" && cards.length && !entry.cardId) return;
     const cat = categoryList.find(c => c.name === entry.category);
     setSaving(true);
     try {
+      if (entry.method === "credito" && entry.cardId && saveDefaultCard) {
+        localStorage.setItem(DEFAULT_CARD_STORAGE_KEY, entry.cardId);
+      }
       await onSubmit({
         ...entry,
+        cardId: entry.method === "credito" ? entry.cardId || null : null,
         amount: Number(String(entry.amount).replace(",", ".")),
         description: entry.description || (cat?.label || entry.category),
         icon: cat?.icon || "Box",
@@ -1457,9 +1503,23 @@ function TransactionModal({ initialType, onClose, onSubmit }) {
         <p className="field-label">MÉTODO</p>
         <div className="method-grid">
           {methods.map(([v, l]) => (
-            <button type="button" className={entry.method === v ? "active" : ""} onClick={() => setEntry(e => ({ ...e, method: v }))} key={v}>{l}</button>
+            <button type="button" className={entry.method === v ? "active" : ""} onClick={() => setMethod(v)} key={v}>{l}</button>
           ))}
         </div>
+        {entry.method === "credito" && cards.length > 0 && (
+          <>
+            <p className="field-label">CARTAO</p>
+            <div className="text-field">
+              <select value={entry.cardId} onChange={ev => setEntry(e => ({ ...e, cardId: ev.target.value }))}>
+                {cards.map(card => <option key={card.id} value={card.id}>{card.name} ****{card.last4}</option>)}
+              </select>
+            </div>
+            <label className="default-card-toggle">
+              <input type="checkbox" checked={saveDefaultCard} onChange={ev => setSaveDefaultCard(ev.target.checked)} />
+              <span>Usar como cartao padrao</span>
+            </label>
+          </>
+        )}
         <button className="save-button" disabled={saving}>{saving ? "Salvando..." : "Salvar lançamento"}</button>
       </form>
     </div>

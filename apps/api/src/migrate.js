@@ -44,6 +44,7 @@ const statements = [
     color text NOT NULL DEFAULT '#111111',
     created_at timestamptz NOT NULL DEFAULT now()
   )`,
+  `ALTER TABLE transactions ADD COLUMN IF NOT EXISTS card_id uuid REFERENCES cards(id) ON DELETE SET NULL`,
   `CREATE TABLE IF NOT EXISTS card_installments (
     id uuid PRIMARY KEY DEFAULT gen_random_uuid(),
     card_id uuid REFERENCES cards(id) ON DELETE CASCADE,

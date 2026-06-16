@@ -9,6 +9,12 @@ const port = Number(process.env.PORT || 3333);
 app.use(cors());
 app.use(express.json());
 
+let schemaReady;
+function ensureSchema() {
+  schemaReady ||= query("ALTER TABLE transactions ADD COLUMN IF NOT EXISTS card_id uuid REFERENCES cards(id) ON DELETE SET NULL");
+  return schemaReady;
+}
+
 // ─── Schemas ──────────────────────────────────────────────────────────────────
 
 const transactionSchema = z.object({
@@ -18,6 +24,7 @@ const transactionSchema = z.object({
   description: z.string().trim().optional(),
   method: z.enum(["pix", "debito", "credito", "dinheiro"]),
   icon: z.string().min(1).default("Box"),
+  cardId: z.string().uuid().nullable().optional(),
   occurredOn: z.string().regex(/^\d{4}-\d{2}-\d{2}$/).optional(),
 });
 
@@ -64,7 +71,7 @@ const installmentSchema = z.object({
 const asNumber = (v) => Number(v || 0);
 
 function toTransaction(row) {
-  return { id: row.id, type: row.type, amount: asNumber(row.amount), category: row.category, description: row.description, method: row.method, icon: row.icon, occurredOn: row.occurred_on, createdAt: row.created_at };
+  return { id: row.id, type: row.type, amount: asNumber(row.amount), category: row.category, description: row.description, method: row.method, icon: row.icon, cardId: row.card_id || null, occurredOn: row.occurred_on, createdAt: row.created_at };
 }
 
 function toBudget(row) {
@@ -86,6 +93,7 @@ function toInstallment(row) {
 // ─── Aggregate ────────────────────────────────────────────────────────────────
 
 async function getAllData() {
+  await ensureSchema();
   const [tx, budgets, cards, recurring, installments] = await Promise.all([
     query("SELECT *, occurred_on::text FROM transactions ORDER BY transactions.occurred_on DESC, transactions.created_at DESC"),
     query("SELECT * FROM budgets ORDER BY created_at ASC"),
@@ -108,11 +116,13 @@ app.get("/api/health", (_req, res) => res.json({ ok: true }));
 app.get("/api/summary", async (_req, res, next) => { try { res.json(await getAllData()); } catch (e) { next(e); } });
 
 // Transactions
-app.get("/api/transactions", async (_req, res, next) => { try { const r = await query("SELECT *, occurred_on::text FROM transactions ORDER BY transactions.occurred_on DESC, transactions.created_at DESC"); res.json(r.rows.map(toTransaction)); } catch (e) { next(e); } });
+app.get("/api/transactions", async (_req, res, next) => { try { await ensureSchema(); const r = await query("SELECT *, occurred_on::text FROM transactions ORDER BY transactions.occurred_on DESC, transactions.created_at DESC"); res.json(r.rows.map(toTransaction)); } catch (e) { next(e); } });
 app.post("/api/transactions", async (req, res, next) => {
   try {
+    await ensureSchema();
     const p = transactionSchema.parse(req.body);
-    const r = await query(`INSERT INTO transactions (type,amount,category,description,method,icon,occurred_on) VALUES ($1,$2,$3,$4,$5,$6,COALESCE($7::date,CURRENT_DATE)) RETURNING *,occurred_on::text`, [p.type,p.amount,p.category,p.description||p.category,p.method,p.icon,p.occurredOn||null]);
+    const cardId = p.method === "credito" ? p.cardId || null : null;
+    const r = await query(`INSERT INTO transactions (type,amount,category,description,method,icon,card_id,occurred_on) VALUES ($1,$2,$3,$4,$5,$6,$7,COALESCE($8::date,CURRENT_DATE)) RETURNING *,occurred_on::text`, [p.type,p.amount,p.category,p.description||p.category,p.method,p.icon,cardId,p.occurredOn||null]);
     res.status(201).json(toTransaction(r.rows[0]));
   } catch (e) { next(e); }
 });

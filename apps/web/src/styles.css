@@ -726,6 +726,21 @@ button {
   color: #ef4444;
 }
 
+.invoice-total {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 12px 14px;
+  background: #fafafa;
+  color: #111;
+  font-size: 13px;
+  font-weight: 800;
+}
+
+.invoice-total strong {
+  font-size: 14px;
+}
+
 .positive {
   color: #16a34a !important;
 }
@@ -1446,6 +1461,22 @@ button {
   font-size: 10px;
   font-weight: 800;
   letter-spacing: 1px;
+}
+
+.default-card-toggle {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin: -2px 0 14px;
+  color: #555;
+  font-size: 13px;
+  font-weight: 800;
+}
+
+.default-card-toggle input {
+  width: 18px;
+  height: 18px;
+  accent-color: #111;
 }
 
 .category-strip {
