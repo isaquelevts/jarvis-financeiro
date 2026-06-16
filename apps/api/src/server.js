@@ -126,6 +126,16 @@ app.post("/api/transactions", async (req, res, next) => {
     res.status(201).json(toTransaction(r.rows[0]));
   } catch (e) { next(e); }
 });
+app.put("/api/transactions/:id", async (req, res, next) => {
+  try {
+    await ensureSchema();
+    const p = transactionSchema.parse(req.body);
+    const cardId = p.method === "credito" ? p.cardId || null : null;
+    const r = await query(`UPDATE transactions SET type=$1,amount=$2,category=$3,description=$4,method=$5,icon=$6,card_id=$7,occurred_on=COALESCE($8::date,CURRENT_DATE) WHERE id=$9 RETURNING *,occurred_on::text`, [p.type,p.amount,p.category,p.description||p.category,p.method,p.icon,cardId,p.occurredOn||null,req.params.id]);
+    if (!r.rows.length) return res.status(404).json({ error: "Not found" });
+    res.json(toTransaction(r.rows[0]));
+  } catch (e) { next(e); }
+});
 app.delete("/api/transactions/:id", async (req, res, next) => { try { await query("DELETE FROM transactions WHERE id=$1",[req.params.id]); res.status(204).end(); } catch (e) { next(e); } });
 
 // Budgets

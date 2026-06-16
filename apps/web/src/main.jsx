@@ -255,6 +255,11 @@ function useFinanceData() {
     setData(d => ({ ...d, transactions: [item, ...d.transactions] }));
   }
 
+  async function updateTransaction(id, payload) {
+    const item = await callApi("PUT", `/transactions/${id}`, payload);
+    setData(d => ({ ...d, transactions: d.transactions.map(t => t.id === id ? item : t) }));
+  }
+
   async function deleteTransaction(id) {
     await callApi("DELETE", `/transactions/${id}`);
     setData(d => ({ ...d, transactions: d.transactions.filter(t => t.id !== id) }));
@@ -326,7 +331,7 @@ function useFinanceData() {
 
   return {
     data, loading, error, reload: load,
-    createTransaction, deleteTransaction,
+    createTransaction, updateTransaction, deleteTransaction,
     createBudget, updateBudget, deleteBudget,
     createCard, updateCard, deleteCard,
     createRecurring, updateRecurring, deleteRecurring,
@@ -454,11 +459,6 @@ function FinanceApp({ onLogout }) {
     <CategoriesProvider>
       <main className="page-shell">
         <section className="phone">
-          <StatusBar />
-          <button className="logout-button" type="button" onClick={onLogout} title="Sair">
-            <LogOut size={16} />
-            <span>Sair</span>
-          </button>
           <div className="content">
             {loading ? <LoadingState /> : error ? <ErrorState message={error} onRetry={reload} /> : (
               <>
@@ -471,14 +471,16 @@ function FinanceApp({ onLogout }) {
               </>
             )}
           </div>
-          <BottomNav screen={screen} setScreen={setScreen} />
+          <BottomNav screen={screen} setScreen={setScreen} onLogout={onLogout} />
 
-          {(modal?.type === "receita" || modal?.type === "despesa") && (
+          {(modal?.type === "receita" || modal?.type === "despesa" || modal?.type === "transaction") && (
             <TransactionModal
-              initialType={modal.type}
+              initialType={modal.data?.type || modal.type}
+              transaction={modal.type === "transaction" ? modal.data : null}
               cards={model.cards}
               onClose={closeModal}
-              onSubmit={async p => { await ops.createTransaction(p); closeModal(); }}
+              onSubmit={async p => { modal.data?.id ? await ops.updateTransaction(modal.data.id, p) : await ops.createTransaction(p); closeModal(); }}
+              onDelete={modal.data?.id ? async () => { await ops.deleteTransaction(modal.data.id); closeModal(); } : null}
             />
           )}
 
@@ -580,19 +582,6 @@ function Stat({ label, value, good }) {
 
 function Empty({ title }) {
   return <span className="empty">{title}</span>;
-}
-
-function StatusBar() {
-  return (
-    <div className="status-bar">
-      <span>9:41</span>
-      <div className="status-icons">
-        <span className="signal" />
-        <span className="wifi" />
-        <span className="battery" />
-      </div>
-    </div>
-  );
 }
 
 function LoadingState() {
@@ -729,7 +718,7 @@ function CategoryPickerInline({ value, onChange, type = "expense" }) {
   );
 }
 
-function BottomNav({ screen, setScreen }) {
+function BottomNav({ screen, setScreen, onLogout }) {
   const items = [
     ["dashboard", "Home", LayoutDashboard],
     ["transactions", "Lançar", ReceiptText],
@@ -750,6 +739,10 @@ function BottomNav({ screen, setScreen }) {
           <span>{label}</span>
         </button>
       ))}
+      <button type="button" className="logout-nav-button" onClick={onLogout}>
+        <LogOut size={20} />
+        <span>Sair</span>
+      </button>
     </nav>
   );
 }
@@ -869,7 +862,7 @@ function TransactionPreview({ transactions, setScreen }) {
   );
 }
 
-function TransactionRow({ tx, invoice = false, onDelete }) {
+function TransactionRow({ tx, invoice = false, onEdit, onDelete }) {
   const { allCats } = useCategories();
   const value = invoice ? money(tx.amount) : `${tx.type === "receita" ? "+" : "-"}${money(tx.amount)}`;
   return (
@@ -880,6 +873,11 @@ function TransactionRow({ tx, invoice = false, onDelete }) {
         <p>{displayCategory(tx.category, allCats)} · {invoice ? shortDate(tx.occurredOn) : tx.method}</p>
       </div>
       <strong className={tx.type === "receita" ? "positive" : invoice ? "" : "negative"}>{value}</strong>
+      {onEdit && (
+        <button className="tx-action-btn" onClick={() => onEdit(tx)} aria-label="Editar">
+          <Pencil size={13} />
+        </button>
+      )}
       {onDelete && (
         <button className="tx-delete-btn" onClick={() => onDelete(tx.id)} aria-label="Excluir">
           <Trash2 size={13} />
@@ -1021,7 +1019,7 @@ function Transactions({ model, month, setMonth, openModal, onDelete }) {
           <div className="date-group" key={date}>
             <p className="date-label">{shortDate(date)}</p>
             <div className="white-card list-card">
-              {items.map(tx => <TransactionRow tx={tx} key={tx.id} onDelete={onDelete} />)}
+              {items.map(tx => <TransactionRow tx={tx} key={tx.id} onEdit={item => openModal("transaction", item)} onDelete={onDelete} />)}
             </div>
           </div>
         )) : <Empty title="Nenhum lançamento encontrado" />}
@@ -1455,18 +1453,19 @@ function ForecastView({ recurring, installments }) {
 
 // ─── Transaction modal ────────────────────────────────────────────────────────
 
-function TransactionModal({ initialType, cards = [], onClose, onSubmit }) {
+function TransactionModal({ initialType, transaction, cards = [], onClose, onSubmit, onDelete }) {
+  const isEdit = !!transaction?.id;
   const { expenseCats, incomeCats } = useCategories();
   const storedDefaultCard = localStorage.getItem(DEFAULT_CARD_STORAGE_KEY);
   const defaultCardId = cards.some(card => card.id === storedDefaultCard) ? storedDefaultCard : cards[0]?.id || "";
   const [entry, setEntry] = useState({
-    type: initialType,
-    amount: "",
-    category: initialType === "receita" ? "Salario" : "Alimentacao",
-    description: "",
-    method: "pix",
-    cardId: defaultCardId,
-    occurredOn: todayDate(),
+    type: transaction?.type || initialType,
+    amount: transaction?.amount ? String(transaction.amount).replace(".", ",") : "",
+    category: transaction?.category || (initialType === "receita" ? "Salario" : "Alimentacao"),
+    description: transaction?.description || "",
+    method: transaction?.method || "pix",
+    cardId: transaction?.cardId || defaultCardId,
+    occurredOn: transaction?.occurredOn || todayDate(),
   });
   const [saveDefaultCard, setSaveDefaultCard] = useState(true);
   const [saving, setSaving] = useState(false);
@@ -1504,7 +1503,7 @@ function TransactionModal({ initialType, cards = [], onClose, onSubmit }) {
     <div className="modal-backdrop">
       <form className="modal" onSubmit={submit}>
         <div className="modal-head">
-          <h2>{entry.type === "receita" ? "Nova Receita" : "Nova Despesa"}</h2>
+          <h2>{isEdit ? "Editar Lançamento" : entry.type === "receita" ? "Nova Receita" : "Nova Despesa"}</h2>
           <button type="button" onClick={onClose}><X size={18} /></button>
         </div>
         <div className="segmented">
@@ -1548,7 +1547,10 @@ function TransactionModal({ initialType, cards = [], onClose, onSubmit }) {
             </label>
           </>
         )}
-        <button className="save-button" disabled={saving}>{saving ? "Salvando..." : "Salvar lançamento"}</button>
+        <div className="modal-actions">
+          <button className="save-button" disabled={saving}>{saving ? "Salvando..." : isEdit ? "Salvar alterações" : "Salvar lançamento"}</button>
+          {onDelete && <button type="button" className="delete-button" onClick={onDelete}>Excluir lançamento</button>}
+        </div>
       </form>
     </div>
   );

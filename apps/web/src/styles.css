@@ -140,74 +140,8 @@ button {
   position: relative;
 }
 
-.status-bar {
-  height: 50px;
-  display: flex;
-  align-items: flex-end;
-  justify-content: space-between;
-  padding: 0 28px 10px;
-  font-size: 15px;
-  font-weight: 800;
-  flex-shrink: 0;
-}
-
-.status-icons {
-  display: flex;
-  align-items: center;
-  gap: 8px;
-}
-
-.signal {
-  width: 17px;
-  height: 12px;
-  background: linear-gradient(to top, #111 0 33%, transparent 33%),
-    linear-gradient(to top, transparent 0 25%, #111 25% 58%, transparent 58%),
-    linear-gradient(to top, transparent 0 15%, #111 15% 82%, transparent 82%),
-    linear-gradient(to top, #111, #111);
-  background-size: 3px 100%, 3px 100%, 3px 100%, 3px 100%;
-  background-position: 0 0, 5px 0, 10px 0, 15px 0;
-  background-repeat: no-repeat;
-}
-
-.wifi {
-  width: 16px;
-  height: 12px;
-  border: 2px solid #111;
-  border-left-color: transparent;
-  border-right-color: transparent;
-  border-bottom-color: transparent;
-  border-radius: 50% 50% 0 0;
-}
-
-.battery {
-  width: 26px;
-  height: 13px;
-  border: 1px solid #111;
-  border-radius: 4px;
-  position: relative;
-}
-
-.battery::before {
-  content: "";
-  position: absolute;
-  inset: 2px 5px 2px 2px;
-  border-radius: 2px;
-  background: #111;
-}
-
-.battery::after {
-  content: "";
-  position: absolute;
-  right: -4px;
-  top: 4px;
-  width: 2px;
-  height: 5px;
-  border-radius: 0 2px 2px 0;
-  background: #111;
-}
-
 .content {
-  height: calc(100% - 130px);
+  height: calc(100% - 80px);
   overflow-y: auto;
   scrollbar-width: none;
 }
@@ -671,7 +605,7 @@ button {
 
 .transaction-row {
   display: grid;
-  grid-template-columns: auto minmax(0, 1fr) auto auto;
+  grid-template-columns: auto minmax(0, 1fr) auto auto auto;
   align-items: center;
   gap: 10px;
   padding: 12px 14px;
@@ -1344,7 +1278,7 @@ button {
   border-radius: 28px;
   background: #111;
   display: grid;
-  grid-template-columns: repeat(6, minmax(0, 1fr));
+  grid-template-columns: repeat(7, minmax(0, 1fr));
   padding: 6px;
   box-shadow: 0 12px 30px rgb(0 0 0 / 22%);
   z-index: 50;
@@ -1366,6 +1300,10 @@ button {
 .bottom-nav button.active {
   color: #fff;
   background: rgb(255 255 255 / 13%);
+}
+
+.bottom-nav .logout-nav-button {
+  color: rgb(255 255 255 / 64%);
 }
 
 .bottom-nav span {
@@ -1749,10 +1687,6 @@ button {
     flex-direction: column;
   }
 
-  .status-bar {
-    display: none;
-  }
-
   .demo-banner {
     position: fixed;
     top: 12px;
@@ -1854,6 +1788,10 @@ button {
   .bottom-nav span {
     font-size: 14px;
     font-weight: 700;
+  }
+
+  .bottom-nav .logout-nav-button {
+    margin-top: auto;
   }
 
   /* Modal centered on desktop */
@@ -2038,23 +1976,4 @@ button {
   border-radius: 8px;
   padding: 3px 8px;
   flex-shrink: 0;
-}
-
-.logout-button {
-  position: absolute;
-  top: 54px;
-  right: 20px;
-  z-index: 50;
-  height: 32px;
-  display: flex;
-  align-items: center;
-  gap: 6px;
-  border: 0;
-  border-radius: 999px;
-  background: #fff;
-  color: #111;
-  padding: 0 12px;
-  box-shadow: 0 6px 16px rgb(0 0 0 / 10%);
-  font-size: 12px;
-  font-weight: 800;
 }
