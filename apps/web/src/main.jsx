@@ -15,6 +15,9 @@ import Fuel from "lucide-react/dist/esm/icons/fuel.js";
 import House from "lucide-react/dist/esm/icons/house.js";
 import Laptop from "lucide-react/dist/esm/icons/laptop.js";
 import LayoutDashboard from "lucide-react/dist/esm/icons/layout-dashboard.js";
+import LockKeyhole from "lucide-react/dist/esm/icons/lock-keyhole.js";
+import LogIn from "lucide-react/dist/esm/icons/log-in.js";
+import LogOut from "lucide-react/dist/esm/icons/log-out.js";
 import LineChart from "lucide-react/dist/esm/icons/chart-line.js";
 import Loader2 from "lucide-react/dist/esm/icons/loader-circle.js";
 import Pencil from "lucide-react/dist/esm/icons/pencil.js";
@@ -33,6 +36,8 @@ import "./styles.css";
 // ─── Constants ────────────────────────────────────────────────────────────────
 
 const API_URL = import.meta.env.VITE_API_URL || (import.meta.env.PROD ? "/api" : "http://localhost:3333/api");
+const APP_PASSWORD = import.meta.env.VITE_APP_PASSWORD || "1234";
+const AUTH_STORAGE_KEY = "jarvis_auth";
 const BASE_BALANCE = 0;
 const MONTH_NAMES = ["Janeiro","Fevereiro","Março","Abril","Maio","Junho","Julho","Agosto","Setembro","Outubro","Novembro","Dezembro"];
 const MONTH_SHORT = ["Jan","Fev","Mar","Abr","Mai","Jun","Jul","Ago","Set","Out","Nov","Dez"];
@@ -340,6 +345,69 @@ function enrichData(data, month) {
 // ─── App ──────────────────────────────────────────────────────────────────────
 
 function App() {
+  const [authenticated, setAuthenticated] = useState(() => localStorage.getItem(AUTH_STORAGE_KEY) === "true");
+
+  function login(password) {
+    if (password !== APP_PASSWORD) return false;
+    localStorage.setItem(AUTH_STORAGE_KEY, "true");
+    setAuthenticated(true);
+    return true;
+  }
+
+  function logout() {
+    localStorage.removeItem(AUTH_STORAGE_KEY);
+    setAuthenticated(false);
+  }
+
+  if (!authenticated) return <LoginScreen onLogin={login} />;
+
+  return <FinanceApp onLogout={logout} />;
+}
+
+function LoginScreen({ onLogin }) {
+  const [password, setPassword] = useState("");
+  const [error, setError] = useState("");
+
+  function submit(ev) {
+    ev.preventDefault();
+    setError("");
+    if (!onLogin(password)) {
+      setError("Senha incorreta.");
+      setPassword("");
+    }
+  }
+
+  return (
+    <main className="login-shell">
+      <form className="login-panel" onSubmit={submit}>
+        <div className="login-icon"><LockKeyhole size={28} /></div>
+        <p className="login-kicker">Jarvis Financeiro</p>
+        <h1>Entrar no app</h1>
+
+        <label className="login-field">
+          <span>Senha</span>
+          <input
+            autoFocus
+            required
+            type="password"
+            value={password}
+            onChange={ev => setPassword(ev.target.value)}
+            placeholder="Digite sua senha"
+          />
+        </label>
+
+        {error && <p className="login-error">{error}</p>}
+
+        <button className="login-button">
+          <LogIn size={18} />
+          Entrar
+        </button>
+      </form>
+    </main>
+  );
+}
+
+function FinanceApp({ onLogout }) {
   const ops = useFinanceData();
   const { data, loading, error, reload } = ops;
   const [screen, setScreen] = useState("dashboard");
@@ -357,6 +425,10 @@ function App() {
       <main className="page-shell">
         <section className="phone">
           <StatusBar />
+          <button className="logout-button" type="button" onClick={onLogout} title="Sair">
+            <LogOut size={16} />
+            <span>Sair</span>
+          </button>
           <div className="content">
             {loading ? <LoadingState /> : error ? <ErrorState message={error} onRetry={reload} /> : (
               <>
