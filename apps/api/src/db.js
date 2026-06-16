@@ -7,10 +7,19 @@ dotenv.config();
 
 const { Pool } = pg;
 
+const connectionString =
+  process.env.DATABASE_URL ||
+  process.env.POSTGRES_URL ||
+  process.env.STORAGE_URL ||
+  "postgres://jarvis:jarvis@localhost:5432/jarvis_financeiro";
+
+const ssl = !connectionString.includes("localhost") && !connectionString.includes("127.0.0.1")
+  ? { rejectUnauthorized: false }
+  : false;
+
 export const pool = new Pool({
-  connectionString:
-    process.env.DATABASE_URL ||
-    "postgres://jarvis:jarvis@localhost:5432/jarvis_financeiro",
+  connectionString,
+  ssl,
 });
 
 export async function query(text, params) {
@@ -20,3 +29,4 @@ export async function query(text, params) {
 export async function closePool() {
   await pool.end();
 }
+
