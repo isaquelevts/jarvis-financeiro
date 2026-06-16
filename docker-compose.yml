@@ -1,0 +1,16 @@
+services:
+  postgres:
+    image: postgres:16-alpine
+    container_name: jarvis-financeiro-postgres
+    restart: unless-stopped
+    environment:
+      POSTGRES_USER: jarvis
+      POSTGRES_PASSWORD: jarvis
+      POSTGRES_DB: jarvis_financeiro
+    ports:
+      - "5432:5432"
+    volumes:
+      - jarvis_postgres_data:/var/lib/postgresql/data
+
+volumes:
+  jarvis_postgres_data:

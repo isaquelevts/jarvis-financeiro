@@ -1,0 +1,759 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin="">
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <style>
+    body { background: #d8d8d8; display: flex; justify-content: center; align-items: flex-start; min-height: 100vh; padding: 32px 20px; }
+    * { box-sizing: border-box; -webkit-font-smoothing: antialiased; }
+    ::-webkit-scrollbar { display: none; }
+    input:focus { outline: none; }
+    button { font-family: 'Plus Jakarta Sans', sans-serif; }
+  </style>
+</helmet>
+
+<div style="width: 390px; height: 844px; background: #f0f2f4; font-family: 'Plus Jakarta Sans', -apple-system, sans-serif; position: relative; overflow: hidden; border-radius: 50px; box-shadow: 0 40px 80px rgba(0,0,0,0.28), 0 0 0 10px white, 0 0 0 11px #e0e0e0;">
+
+  <!-- STATUS BAR -->
+  <div style="height: 50px; display: flex; justify-content: space-between; align-items: flex-end; padding: 0 28px 10px;">
+    <span style="font-size: 15px; font-weight: 700; color: #111;">9:41</span>
+    <div style="display: flex; gap: 6px; align-items: center;">
+      <svg width="17" height="12" viewBox="0 0 17 12" fill="#111"><rect x="0" y="8" width="3" height="4" rx="0.8"/><rect x="4.5" y="5" width="3" height="7" rx="0.8"/><rect x="9" y="2" width="3" height="10" rx="0.8"/><rect x="13.5" y="0" width="3" height="12" rx="0.8"/></svg>
+      <svg width="16" height="12" viewBox="0 0 20 15" fill="none" stroke="#111" stroke-width="2" stroke-linecap="round"><path d="M1 5C4.5 1.8 7.5 0.5 10 0.5s5.5 1.3 9 4.5"/><path d="M3.5 8.5C6 6.2 8 5.2 10 5.2s4 1 6.5 3.3"/><path d="M6.5 12C7.8 10.7 8.9 10 10 10s2.2.7 3.5 2"/><circle cx="10" cy="14.5" r="1.5" fill="#111" stroke="none"/></svg>
+      <svg width="26" height="13" viewBox="0 0 26 13"><rect x="0.5" y="0.5" width="21" height="12" rx="2.5" stroke="#111" stroke-width="1" fill="none"/><rect x="2" y="2" width="17" height="9" rx="1.5" fill="#111"/><path d="M23 4.5v4c1-.4 1.8-1 1.8-2s-.8-1.6-1.8-2z" fill="#111"/></svg>
+    </div>
+  </div>
+
+  <!-- SCROLLABLE CONTENT -->
+  <div style="height: 714px; overflow-y: auto; overflow-x: hidden;">
+
+    <!-- ═══════════ DASHBOARD ═══════════ -->
+    <sc-if value="{{ isDashboard }}" hint-placeholder-val="{{ true }}">
+      <div style="padding-bottom: 96px;">
+
+        <!-- Header -->
+        <div style="display: flex; justify-content: space-between; align-items: center; padding: 2px 24px 18px;">
+          <div>
+            <p style="font-size: 12px; color: #999; font-weight: 600; margin-bottom: 2px; letter-spacing: 0.3px;">BOM DIA,</p>
+            <h2 style="font-size: 24px; font-weight: 800; color: #111; letter-spacing: -0.5px; white-space: nowrap;">Jarvis 👋</h2>
+          </div>
+          <div style="display: flex; gap: 8px;">
+            <div style="width: 40px; height: 40px; border-radius: 20px; background: white; display: flex; align-items: center; justify-content: center; font-size: 17px; box-shadow: 0 2px 8px rgba(0,0,0,0.08);">⚙️</div>
+          </div>
+        </div>
+
+        <!-- BALANCE CARD (dark) -->
+        <div style="margin: 0 20px; background: #111; border-radius: 28px; padding: 24px; color: white; background-image: radial-gradient(ellipse at 85% 15%, rgba(255,255,255,0.05) 0%, transparent 55%), repeating-linear-gradient(45deg, transparent, transparent 18px, rgba(255,255,255,0.013) 18px, rgba(255,255,255,0.013) 19px), repeating-linear-gradient(-45deg, transparent, transparent 18px, rgba(255,255,255,0.013) 18px, rgba(255,255,255,0.013) 19px);">
+
+          <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 18px;">
+            <div style="display: flex; align-items: center; gap: 8px;">
+              <div style="width: 26px; height: 17px; background: #22c55e; border-radius: 4px;"></div>
+              <span style="font-size: 12px; color: rgba(255,255,255,0.45); letter-spacing: 2px; font-weight: 500;">**** 1234</span>
+            </div>
+            <span style="font-size: 11px; color: rgba(255,255,255,0.35); background: rgba(255,255,255,0.08); padding: 4px 10px; border-radius: 10px; font-weight: 600; letter-spacing: 0.3px;">JUN 2025</span>
+          </div>
+
+          <p style="font-size: 11px; color: rgba(255,255,255,0.45); font-weight: 700; letter-spacing: 1px; margin-bottom: 6px;">SALDO TOTAL</p>
+          <h1 style="font-size: 38px; font-weight: 800; color: white; letter-spacing: -1.5px; margin-bottom: 22px;">{{ balance }}</h1>
+
+          <div style="display: flex; gap: 10px; margin-bottom: 24px;">
+            <div style="flex: 1; background: rgba(34,197,94,0.14); border: 1px solid rgba(34,197,94,0.22); border-radius: 16px; padding: 11px 14px;">
+              <p style="font-size: 10px; color: #22c55e; font-weight: 700; letter-spacing: 0.8px; margin-bottom: 5px;">↑ RECEITAS</p>
+              <p style="font-size: 15px; color: white; font-weight: 800;">{{ totalIncome }}</p>
+            </div>
+            <div style="flex: 1; background: rgba(255,255,255,0.06); border: 1px solid rgba(255,255,255,0.09); border-radius: 16px; padding: 11px 14px;">
+              <p style="font-size: 10px; color: rgba(255,255,255,0.45); font-weight: 700; letter-spacing: 0.8px; margin-bottom: 5px;">↓ DESPESAS</p>
+              <p style="font-size: 15px; color: white; font-weight: 800;">{{ totalExpense }}</p>
+            </div>
+          </div>
+
+          <!-- Quick actions -->
+          <div style="display: flex; gap: 8px;">
+            <button onClick="{{ openIncomeModal }}" style="flex: 1; background: rgba(255,255,255,0.08); border: 1px solid rgba(255,255,255,0.1); border-radius: 16px; padding: 12px 4px; color: white; font-size: 11px; font-weight: 700; cursor: pointer; display: flex; flex-direction: column; align-items: center; gap: 6px; letter-spacing: 0.2px;">
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="19" x2="12" y2="5"/><polyline points="5 12 12 5 19 12"/></svg>
+              Receita
+            </button>
+            <button onClick="{{ openExpenseModal }}" style="flex: 1; background: rgba(255,255,255,0.08); border: 1px solid rgba(255,255,255,0.1); border-radius: 16px; padding: 12px 4px; color: white; font-size: 11px; font-weight: 700; cursor: pointer; display: flex; flex-direction: column; align-items: center; gap: 6px;">
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="5" x2="12" y2="19"/><polyline points="19 12 12 19 5 12"/></svg>
+              Despesa
+            </button>
+            <button onClick="{{ goToCards }}" style="flex: 1; background: rgba(255,255,255,0.08); border: 1px solid rgba(255,255,255,0.1); border-radius: 16px; padding: 12px 4px; color: white; font-size: 11px; font-weight: 700; cursor: pointer; display: flex; flex-direction: column; align-items: center; gap: 6px;">
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><rect x="2" y="5" width="20" height="14" rx="2"/><line x1="2" y1="10" x2="22" y2="10"/></svg>
+              Cartões
+            </button>
+            <button onClick="{{ goToReports }}" style="flex: 1; background: rgba(255,255,255,0.08); border: 1px solid rgba(255,255,255,0.1); border-radius: 16px; padding: 12px 4px; color: white; font-size: 11px; font-weight: 700; cursor: pointer; display: flex; flex-direction: column; align-items: center; gap: 6px;">
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><line x1="18" y1="20" x2="18" y2="10"/><line x1="12" y1="20" x2="12" y2="4"/><line x1="6" y1="20" x2="6" y2="14"/></svg>
+              Análise
+            </button>
+          </div>
+        </div>
+
+        <!-- Budgets preview -->
+        <div style="margin: 26px 20px 0;">
+          <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 14px;">
+            <h3 style="font-size: 17px; font-weight: 800; color: #111; letter-spacing: -0.3px;">Orçamentos</h3>
+            <button onClick="{{ goToBudgets }}" style="font-size: 13px; color: #888; background: none; border: none; cursor: pointer; font-weight: 700;">Ver todos →</button>
+          </div>
+          <sc-for list="{{ budgetsWithSpent }}" as="b" hint-placeholder-count="3">
+            <div style="background: white; border-radius: 20px; padding: 14px 16px; margin-bottom: 10px; box-shadow: 0 1px 4px rgba(0,0,0,0.05);">
+              <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px;">
+                <div style="display: flex; align-items: center; gap: 10px;">
+                  <span style="font-size: 22px;">{{ b.icon }}</span>
+                  <span style="font-size: 14px; font-weight: 700; color: #111;">{{ b.category }}</span>
+                </div>
+                <div style="{{ b.badgeStyle }}">
+                  <span style="font-size: 12px; font-weight: 800; color: {{ b.statusColor }};">{{ b.pctLabel }}</span>
+                </div>
+              </div>
+              <div style="height: 4px; background: #f0f0f0; border-radius: 4px; overflow: hidden;">
+                <div style="{{ b.barSm }}"></div>
+              </div>
+              <div style="display: flex; justify-content: space-between; margin-top: 8px;">
+                <span style="font-size: 11px; color: #bbb; font-weight: 500;">{{ b.spentFmt }} de {{ b.limitFmt }}</span>
+                <span style="font-size: 11px; color: #bbb; font-weight: 500;">restam {{ b.remainFmt }}</span>
+              </div>
+            </div>
+          </sc-for>
+        </div>
+
+        <!-- Recent transactions -->
+        <div style="margin: 26px 20px 0;">
+          <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 14px;">
+            <h3 style="font-size: 17px; font-weight: 800; color: #111; letter-spacing: -0.3px;">Últimas transações</h3>
+            <button onClick="{{ goToTransactions }}" style="font-size: 13px; color: #888; background: none; border: none; cursor: pointer; font-weight: 700;">Ver todas →</button>
+          </div>
+          <div style="background: white; border-radius: 20px; overflow: hidden; box-shadow: 0 1px 4px rgba(0,0,0,0.05);">
+            <sc-for list="{{ recent }}" as="tx" hint-placeholder-count="5">
+              <div style="display: flex; align-items: center; gap: 12px; padding: 13px 16px; border-bottom: 1px solid #f4f4f4;">
+                <div style="width: 42px; height: 42px; border-radius: 14px; background: #f5f5f5; display: flex; align-items: center; justify-content: center; font-size: 19px; flex-shrink: 0;">{{ tx.icon }}</div>
+                <div style="flex: 1; min-width: 0;">
+                  <p style="font-size: 14px; font-weight: 700; color: #111; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">{{ tx.description }}</p>
+                  <p style="font-size: 12px; color: #bbb; margin-top: 2px; font-weight: 500;">{{ tx.category }} · {{ tx.dateFmt }}</p>
+                </div>
+                <span style="font-size: 14px; font-weight: 800; white-space: nowrap; color: {{ tx.amtColor }};">{{ tx.amtFmt }}</span>
+              </div>
+            </sc-for>
+          </div>
+        </div>
+
+        <!-- Upcoming bills -->
+        <div style="margin: 26px 20px 0;">
+          <h3 style="font-size: 17px; font-weight: 800; color: #111; letter-spacing: -0.3px; margin-bottom: 14px;">Próximos vencimentos</h3>
+          <sc-for list="{{ upcoming }}" as="bill" hint-placeholder-count="3">
+            <div style="background: white; border-radius: 20px; padding: 13px 16px; margin-bottom: 10px; display: flex; align-items: center; gap: 12px; box-shadow: 0 1px 4px rgba(0,0,0,0.05);">
+              <div style="width: 42px; height: 42px; border-radius: 14px; background: #f5f5f5; display: flex; align-items: center; justify-content: center; font-size: 19px; flex-shrink: 0;">{{ bill.icon }}</div>
+              <div style="flex: 1;">
+                <p style="font-size: 14px; font-weight: 700; color: #111;">{{ bill.name }}</p>
+                <p style="font-size: 12px; color: #bbb; margin-top: 2px; font-weight: 500;">Vence {{ bill.date }}</p>
+              </div>
+              <div style="text-align: right;">
+                <p style="font-size: 14px; font-weight: 800; color: #111;">{{ bill.amount }}</p>
+                <p style="font-size: 11px; font-weight: 700; margin-top: 2px; color: {{ bill.dColor }};">{{ bill.days }} dias</p>
+              </div>
+            </div>
+          </sc-for>
+        </div>
+      </div>
+    </sc-if>
+
+    <!-- ═══════════ TRANSACTIONS ═══════════ -->
+    <sc-if value="{{ isTransactions }}" hint-placeholder-val="{{ false }}">
+      <div style="padding-bottom: 96px;">
+        <div style="display: flex; justify-content: space-between; align-items: center; padding: 2px 24px 18px;">
+          <h2 style="font-size: 24px; font-weight: 800; color: #111; letter-spacing: -0.5px;">Lançamentos</h2>
+          <button onClick="{{ openExpenseModal }}" style="width: 40px; height: 40px; border-radius: 20px; background: #111; border: none; cursor: pointer; color: white; font-size: 24px; display: flex; align-items: center; justify-content: center; line-height: 1;">+</button>
+        </div>
+
+        <div style="display: flex; gap: 10px; padding: 0 20px; margin-bottom: 22px;">
+          <div style="flex: 1; background: white; border-radius: 18px; padding: 14px; text-align: center; box-shadow: 0 1px 4px rgba(0,0,0,0.05);">
+            <p style="font-size: 10px; color: #999; font-weight: 700; letter-spacing: 0.8px; margin-bottom: 5px;">RECEITAS</p>
+            <p style="font-size: 17px; font-weight: 800; color: #16a34a;">{{ totalIncome }}</p>
+          </div>
+          <div style="flex: 1; background: white; border-radius: 18px; padding: 14px; text-align: center; box-shadow: 0 1px 4px rgba(0,0,0,0.05);">
+            <p style="font-size: 10px; color: #999; font-weight: 700; letter-spacing: 0.8px; margin-bottom: 5px;">DESPESAS</p>
+            <p style="font-size: 17px; font-weight: 800; color: #ef4444;">{{ totalExpense }}</p>
+          </div>
+        </div>
+
+        <div style="padding: 0 20px;">
+          <sc-for list="{{ txGroups }}" as="group" hint-placeholder-count="3">
+            <div style="margin-bottom: 22px;">
+              <p style="font-size: 11px; color: #aaa; font-weight: 700; letter-spacing: 1px; text-transform: uppercase; margin-bottom: 10px;">{{ group.label }}</p>
+              <div style="background: white; border-radius: 20px; overflow: hidden; box-shadow: 0 1px 4px rgba(0,0,0,0.05);">
+                <sc-for list="{{ group.items }}" as="tx" hint-placeholder-count="2">
+                  <div style="display: flex; align-items: center; gap: 12px; padding: 13px 16px; border-bottom: 1px solid #f4f4f4;">
+                    <div style="width: 42px; height: 42px; border-radius: 14px; background: #f5f5f5; display: flex; align-items: center; justify-content: center; font-size: 19px; flex-shrink: 0;">{{ tx.icon }}</div>
+                    <div style="flex: 1; min-width: 0;">
+                      <p style="font-size: 14px; font-weight: 700; color: #111; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">{{ tx.description }}</p>
+                      <p style="font-size: 12px; color: #bbb; margin-top: 2px; font-weight: 500;">{{ tx.category }} · {{ tx.method }}</p>
+                    </div>
+                    <span style="font-size: 14px; font-weight: 800; color: {{ tx.amtColor }}; white-space: nowrap;">{{ tx.amtFmt }}</span>
+                  </div>
+                </sc-for>
+              </div>
+            </div>
+          </sc-for>
+        </div>
+      </div>
+    </sc-if>
+
+    <!-- ═══════════ BUDGETS ═══════════ -->
+    <sc-if value="{{ isBudgets }}" hint-placeholder-val="{{ false }}">
+      <div style="padding-bottom: 96px;">
+        <div style="padding: 2px 24px 18px;">
+          <h2 style="font-size: 24px; font-weight: 800; color: #111; letter-spacing: -0.5px;">Orçamentos</h2>
+          <p style="font-size: 13px; color: #999; font-weight: 600; margin-top: 2px;">Junho 2025</p>
+        </div>
+
+        <!-- Overview card -->
+        <div style="margin: 0 20px 22px; background: #111; border-radius: 26px; padding: 22px 24px; color: white; background-image: radial-gradient(ellipse at 80% 10%, rgba(255,255,255,0.05) 0%, transparent 60%);">
+          <p style="font-size: 10px; color: rgba(255,255,255,0.45); font-weight: 700; letter-spacing: 1px; margin-bottom: 4px;">TOTAL ORÇADO</p>
+          <p style="font-size: 32px; font-weight: 800; color: white; letter-spacing: -1px; margin-bottom: 14px;">{{ totalBudget }}</p>
+          <div style="height: 8px; background: rgba(255,255,255,0.1); border-radius: 8px; overflow: hidden; margin-bottom: 14px;">
+            <div style="{{ overallBarStyle }}"></div>
+          </div>
+          <div style="display: flex; justify-content: space-between;">
+            <div>
+              <p style="font-size: 10px; color: rgba(255,255,255,0.4); font-weight: 600; margin-bottom: 3px;">GASTO</p>
+              <p style="font-size: 16px; font-weight: 800; color: #ef4444;">{{ totalSpent }}</p>
+            </div>
+            <div style="text-align: right;">
+              <p style="font-size: 10px; color: rgba(255,255,255,0.4); font-weight: 600; margin-bottom: 3px;">DISPONÍVEL</p>
+              <p style="font-size: 16px; font-weight: 800; color: #22c55e;">{{ budgetRemain }}</p>
+            </div>
+          </div>
+        </div>
+
+        <div style="padding: 0 20px;">
+          <sc-for list="{{ budgetsWithSpent }}" as="b" hint-placeholder-count="5">
+            <div style="background: white; border-radius: 22px; padding: 18px; margin-bottom: 12px; box-shadow: 0 1px 4px rgba(0,0,0,0.05);">
+              <div style="display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 14px;">
+                <div style="display: flex; align-items: center; gap: 12px;">
+                  <div style="width: 48px; height: 48px; border-radius: 15px; background: #f5f5f5; display: flex; align-items: center; justify-content: center; font-size: 22px;">{{ b.icon }}</div>
+                  <div>
+                    <p style="font-size: 15px; font-weight: 800; color: #111;">{{ b.category }}</p>
+                    <p style="font-size: 12px; color: #bbb; font-weight: 500; margin-top: 2px;">Limite: {{ b.limitFmt }}</p>
+                  </div>
+                </div>
+                <div style="{{ b.badgeStyle }}">
+                  <span style="font-size: 13px; font-weight: 800; color: {{ b.statusColor }};">{{ b.pctLabel }}</span>
+                </div>
+              </div>
+              <div style="height: 8px; background: #f0f0f0; border-radius: 8px; overflow: hidden; margin-bottom: 12px;">
+                <div style="{{ b.barLg }}"></div>
+              </div>
+              <div style="display: flex; justify-content: space-between;">
+                <div>
+                  <p style="font-size: 11px; color: #bbb; font-weight: 500; margin-bottom: 2px;">Gasto</p>
+                  <p style="font-size: 15px; font-weight: 800; color: #111;">{{ b.spentFmt }}</p>
+                </div>
+                <div style="text-align: right;">
+                  <p style="font-size: 11px; color: #bbb; font-weight: 500; margin-bottom: 2px;">Restam</p>
+                  <p style="font-size: 15px; font-weight: 800; color: {{ b.statusColor }};">{{ b.remainFmt }}</p>
+                </div>
+              </div>
+            </div>
+          </sc-for>
+        </div>
+      </div>
+    </sc-if>
+
+    <!-- ═══════════ CARDS ═══════════ -->
+    <sc-if value="{{ isCards }}" hint-placeholder-val="{{ false }}">
+      <div style="padding-bottom: 96px;">
+        <div style="padding: 2px 24px 18px;">
+          <h2 style="font-size: 24px; font-weight: 800; color: #111; letter-spacing: -0.5px;">Cartões</h2>
+        </div>
+
+        <!-- Tab switcher -->
+        <div style="display: flex; gap: 4px; margin: 0 20px 20px; background: white; border-radius: 16px; padding: 4px; box-shadow: 0 1px 4px rgba(0,0,0,0.05);">
+          <sc-for list="{{ cardData }}" as="card" hint-placeholder-count="2">
+            <button onClick="{{ card.onClick }}" style="{{ card.tabStyle }}">{{ card.name }}</button>
+          </sc-for>
+        </div>
+
+        <!-- Card visual -->
+        <div style="margin: 0 20px 20px; border-radius: 26px; padding: 26px; color: white; height: 215px; position: relative; overflow: hidden; background: {{ cc.color }};">
+          <div style="position: absolute; top: -50px; right: -25px; width: 170px; height: 170px; border-radius: 50%; background: rgba(255,255,255,0.08);"></div>
+          <div style="position: absolute; bottom: -40px; right: 40px; width: 120px; height: 120px; border-radius: 50%; background: rgba(255,255,255,0.05);"></div>
+          <div style="display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 28px; position: relative; z-index: 1;">
+            <div>
+              <p style="font-size: 11px; color: rgba(255,255,255,0.6); font-weight: 500; margin-bottom: 3px;">{{ cc.brand }}</p>
+              <p style="font-size: 18px; font-weight: 800;">{{ cc.name }}</p>
+            </div>
+            <svg width="40" height="30" viewBox="0 0 40 30" fill="none">
+              <circle cx="14" cy="15" r="14" fill="rgba(255,255,255,0.3)"/>
+              <circle cx="26" cy="15" r="14" fill="rgba(255,255,255,0.18)"/>
+            </svg>
+          </div>
+          <p style="font-size: 17px; letter-spacing: 4px; font-weight: 700; margin-bottom: 22px; position: relative; z-index: 1; font-family: monospace;">**** **** **** {{ cc.last4 }}</p>
+          <div style="display: flex; justify-content: space-between; position: relative; z-index: 1;">
+            <div>
+              <p style="font-size: 10px; color: rgba(255,255,255,0.55); font-weight: 700; letter-spacing: 0.8px; margin-bottom: 3px;">DISPONÍVEL</p>
+              <p style="font-size: 17px; font-weight: 800;">{{ cc.availFmt }}</p>
+            </div>
+            <div style="text-align: right;">
+              <p style="font-size: 10px; color: rgba(255,255,255,0.55); font-weight: 700; letter-spacing: 0.8px; margin-bottom: 3px;">FATURA ATUAL</p>
+              <p style="font-size: 17px; font-weight: 800;">{{ cc.usedFmt }}</p>
+            </div>
+          </div>
+        </div>
+
+        <!-- Limit bar -->
+        <div style="margin: 0 20px 16px; background: white; border-radius: 20px; padding: 16px 18px; box-shadow: 0 1px 4px rgba(0,0,0,0.05);">
+          <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px;">
+            <span style="font-size: 13px; color: #888; font-weight: 600;">Limite utilizado</span>
+            <span style="font-size: 14px; font-weight: 800; color: #111;">{{ cc.pctLabel }}</span>
+          </div>
+          <div style="height: 8px; background: #f0f0f0; border-radius: 8px; overflow: hidden; margin-bottom: 10px;">
+            <div style="{{ cc.limitBarStyle }}"></div>
+          </div>
+          <div style="display: flex; justify-content: space-between;">
+            <span style="font-size: 12px; color: #bbb; font-weight: 500;">Usado: {{ cc.usedFmt }}</span>
+            <span style="font-size: 12px; color: #bbb; font-weight: 500;">Limite: {{ cc.limitFmt }}</span>
+          </div>
+        </div>
+
+        <!-- Dates -->
+        <div style="margin: 0 20px 22px; display: flex; gap: 10px;">
+          <div style="flex: 1; background: white; border-radius: 18px; padding: 16px; text-align: center; box-shadow: 0 1px 4px rgba(0,0,0,0.05);">
+            <p style="font-size: 10px; color: #999; font-weight: 700; letter-spacing: 0.8px; margin-bottom: 5px;">FECHAMENTO</p>
+            <p style="font-size: 24px; font-weight: 800; color: #111;">Dia {{ cc.closingDay }}</p>
+          </div>
+          <div style="flex: 1; background: white; border-radius: 18px; padding: 16px; text-align: center; box-shadow: 0 1px 4px rgba(0,0,0,0.05);">
+            <p style="font-size: 10px; color: #999; font-weight: 700; letter-spacing: 0.8px; margin-bottom: 5px;">VENCIMENTO</p>
+            <p style="font-size: 24px; font-weight: 800; color: #111;">Dia {{ cc.dueDay }}</p>
+          </div>
+        </div>
+
+        <!-- Invoice list -->
+        <div style="padding: 0 20px;">
+          <h3 style="font-size: 16px; font-weight: 800; color: #111; margin-bottom: 12px; letter-spacing: -0.3px;">Fatura — Junho</h3>
+          <div style="background: white; border-radius: 20px; overflow: hidden; box-shadow: 0 1px 4px rgba(0,0,0,0.05);">
+            <sc-for list="{{ invoiceTx }}" as="tx" hint-placeholder-count="3">
+              <div style="display: flex; align-items: center; gap: 12px; padding: 13px 16px; border-bottom: 1px solid #f4f4f4;">
+                <div style="width: 42px; height: 42px; border-radius: 14px; background: #f5f5f5; display: flex; align-items: center; justify-content: center; font-size: 19px; flex-shrink: 0;">{{ tx.icon }}</div>
+                <div style="flex: 1; min-width: 0;">
+                  <p style="font-size: 14px; font-weight: 700; color: #111;">{{ tx.description }}</p>
+                  <p style="font-size: 12px; color: #bbb; margin-top: 2px; font-weight: 500;">{{ tx.category }} · {{ tx.dateFmt }}</p>
+                </div>
+                <span style="font-size: 14px; font-weight: 800; color: #111;">{{ tx.amtFmt }}</span>
+              </div>
+            </sc-for>
+          </div>
+        </div>
+      </div>
+    </sc-if>
+
+    <!-- ═══════════ REPORTS ═══════════ -->
+    <sc-if value="{{ isReports }}" hint-placeholder-val="{{ false }}">
+      <div style="padding-bottom: 96px;">
+        <div style="padding: 2px 24px 18px;">
+          <h2 style="font-size: 24px; font-weight: 800; color: #111; letter-spacing: -0.5px;">Relatórios</h2>
+          <p style="font-size: 13px; color: #999; font-weight: 600; margin-top: 2px;">Junho 2025</p>
+        </div>
+
+        <div style="display: flex; gap: 10px; padding: 0 20px; margin-bottom: 20px;">
+          <div style="flex: 1; background: #111; border-radius: 18px; padding: 16px 18px;">
+            <p style="font-size: 10px; color: rgba(255,255,255,0.45); font-weight: 700; letter-spacing: 0.8px; margin-bottom: 5px;">RECEITAS</p>
+            <p style="font-size: 18px; font-weight: 800; color: #22c55e;">{{ totalIncomeFmt }}</p>
+          </div>
+          <div style="flex: 1; background: white; border-radius: 18px; padding: 16px 18px; box-shadow: 0 1px 4px rgba(0,0,0,0.05);">
+            <p style="font-size: 10px; color: #999; font-weight: 700; letter-spacing: 0.8px; margin-bottom: 5px;">DESPESAS</p>
+            <p style="font-size: 18px; font-weight: 800; color: #ef4444;">{{ totalExpenseFmt }}</p>
+          </div>
+        </div>
+
+        <!-- Bar chart -->
+        <div style="margin: 0 20px 20px; background: white; border-radius: 22px; padding: 20px; box-shadow: 0 1px 4px rgba(0,0,0,0.05);">
+          <p style="font-size: 15px; font-weight: 800; color: #111; margin-bottom: 14px; letter-spacing: -0.3px;">Últimos 6 meses</p>
+          <div style="display: flex; gap: 14px; margin-bottom: 14px;">
+            <div style="display: flex; align-items: center; gap: 5px;">
+              <div style="width: 10px; height: 10px; background: #22c55e; border-radius: 3px;"></div>
+              <span style="font-size: 11px; color: #888; font-weight: 600;">Receitas</span>
+            </div>
+            <div style="display: flex; align-items: center; gap: 5px;">
+              <div style="width: 10px; height: 10px; background: #111; border-radius: 3px;"></div>
+              <span style="font-size: 11px; color: #888; font-weight: 600;">Despesas</span>
+            </div>
+          </div>
+          <div style="display: flex; justify-content: space-around; align-items: flex-end; height: 140px; padding-bottom: 24px;">
+            <sc-for list="{{ chartBars }}" as="bar" hint-placeholder-count="6">
+              <div style="flex: 1; display: flex; flex-direction: column; align-items: center;">
+                <div style="display: flex; gap: 3px; align-items: flex-end; height: 108px; justify-content: center;">
+                  <div style="{{ bar.iBar }}"></div>
+                  <div style="{{ bar.eBar }}"></div>
+                </div>
+                <p style="font-size: 11px; color: #bbb; margin-top: 8px; font-weight: 600;">{{ bar.month }}</p>
+              </div>
+            </sc-for>
+          </div>
+        </div>
+
+        <!-- Donut + legend -->
+        <div style="margin: 0 20px 20px; background: white; border-radius: 22px; padding: 20px; box-shadow: 0 1px 4px rgba(0,0,0,0.05);">
+          <p style="font-size: 15px; font-weight: 800; color: #111; margin-bottom: 16px; letter-spacing: -0.3px;">Por categoria</p>
+          <div style="display: flex; align-items: center; gap: 16px;">
+            <div style="flex-shrink: 0;">{{ donutChart }}</div>
+            <div style="flex: 1; min-width: 0;">
+              <sc-for list="{{ catBreakdown }}" as="cat" hint-placeholder-count="4">
+                <div style="display: flex; align-items: center; gap: 8px; margin-bottom: 10px;">
+                  <div style="width: 10px; height: 10px; border-radius: 3px; flex-shrink: 0; background: {{ cat.color }};"></div>
+                  <span style="font-size: 13px; color: #444; flex: 1; font-weight: 600; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">{{ cat.label }}</span>
+                  <span style="font-size: 12px; font-weight: 800; color: #111;">{{ cat.pctLabel }}</span>
+                </div>
+              </sc-for>
+            </div>
+          </div>
+        </div>
+
+        <!-- Top spenders -->
+        <div style="padding: 0 20px;">
+          <h3 style="font-size: 16px; font-weight: 800; color: #111; margin-bottom: 12px; letter-spacing: -0.3px;">Maiores gastos</h3>
+          <sc-for list="{{ catBreakdown }}" as="cat" hint-placeholder-count="4">
+            <div style="background: white; border-radius: 18px; padding: 14px 16px; margin-bottom: 9px; display: flex; align-items: center; gap: 12px; box-shadow: 0 1px 4px rgba(0,0,0,0.05);">
+              <div style="width: 40px; height: 40px; border-radius: 13px; background: #f5f5f5; display: flex; align-items: center; justify-content: center; font-size: 18px; flex-shrink: 0;">{{ cat.icon }}</div>
+              <div style="flex: 1; min-width: 0;">
+                <div style="display: flex; justify-content: space-between; align-items: baseline; margin-bottom: 7px;">
+                  <span style="font-size: 14px; font-weight: 700; color: #111;">{{ cat.label }}</span>
+                  <span style="font-size: 14px; font-weight: 800; color: #111;">{{ cat.valFmt }}</span>
+                </div>
+                <div style="height: 4px; background: #f0f0f0; border-radius: 4px; overflow: hidden;">
+                  <div style="{{ cat.barStyle }}"></div>
+                </div>
+              </div>
+            </div>
+          </sc-for>
+        </div>
+      </div>
+    </sc-if>
+
+  </div>
+
+  <!-- ═══ BOTTOM NAV ═══ -->
+  <div style="position: absolute; bottom: 0; left: 0; right: 0; padding: 10px 18px 22px;">
+    <div style="background: #111; border-radius: 30px; padding: 10px 4px; display: flex; justify-content: space-around; align-items: center; box-shadow: 0 12px 40px rgba(0,0,0,0.32);">
+
+      <button onClick="{{ goToDashboard }}" style="{{ navHome }}">
+        <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 9l9-7 9 7v11a2 2 0 01-2 2H5a2 2 0 01-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>
+        <span style="font-size: 10px; font-weight: 600; letter-spacing: 0.2px;">Início</span>
+      </button>
+
+      <button onClick="{{ goToTransactions }}" style="{{ navTx }}">
+        <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><line x1="8" y1="6" x2="21" y2="6"/><line x1="8" y1="12" x2="21" y2="12"/><line x1="8" y1="18" x2="16" y2="18"/><circle cx="3.5" cy="6" r="1.2" fill="currentColor" stroke="none"/><circle cx="3.5" cy="12" r="1.2" fill="currentColor" stroke="none"/><circle cx="3.5" cy="18" r="1.2" fill="currentColor" stroke="none"/></svg>
+        <span style="font-size: 10px; font-weight: 600; letter-spacing: 0.2px;">Gastos</span>
+      </button>
+
+      <button onClick="{{ goToBudgets }}" style="{{ navBudget }}">
+        <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><circle cx="12" cy="12" r="5.5"/><circle cx="12" cy="12" r="1.5" fill="currentColor" stroke="none"/></svg>
+        <span style="font-size: 10px; font-weight: 600; letter-spacing: 0.2px;">Budget</span>
+      </button>
+
+      <button onClick="{{ goToCards }}" style="{{ navCards }}">
+        <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><rect x="2" y="5" width="20" height="14" rx="2.5"/><line x1="2" y1="10" x2="22" y2="10"/></svg>
+        <span style="font-size: 10px; font-weight: 600; letter-spacing: 0.2px;">Cartões</span>
+      </button>
+
+      <button onClick="{{ goToReports }}" style="{{ navReports }}">
+        <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><line x1="18" y1="20" x2="18" y2="10"/><line x1="12" y1="20" x2="12" y2="4"/><line x1="6" y1="20" x2="6" y2="14"/><line x1="2" y1="20" x2="22" y2="20"/></svg>
+        <span style="font-size: 10px; font-weight: 600; letter-spacing: 0.2px;">Análise</span>
+      </button>
+    </div>
+  </div>
+
+  <!-- ═══ ADD TRANSACTION MODAL ═══ -->
+  <sc-if value="{{ showModal }}" hint-placeholder-val="{{ false }}">
+    <div style="position: absolute; inset: 0; background: rgba(0,0,0,0.55); z-index: 200; display: flex; align-items: flex-end;">
+      <div style="background: white; border-radius: 30px 30px 0 0; padding: 24px 22px 40px; width: 100%;">
+
+        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
+          <h3 style="font-size: 20px; font-weight: 800; color: #111; letter-spacing: -0.4px;">{{ modalTitle }}</h3>
+          <button onClick="{{ closeModal }}" style="width: 34px; height: 34px; border-radius: 17px; background: #f0f0f0; border: none; cursor: pointer; font-size: 18px; color: #666; display: flex; align-items: center; justify-content: center;">✕</button>
+        </div>
+
+        <!-- Type toggle -->
+        <div style="display: flex; gap: 4px; margin-bottom: 20px; background: #f0f0f0; border-radius: 18px; padding: 4px;">
+          <button onClick="{{ setDespesa }}" style="{{ typeDStyle }}">Despesa</button>
+          <button onClick="{{ setReceita }}" style="{{ typeRStyle }}">Receita</button>
+        </div>
+
+        <!-- Amount -->
+        <div style="background: #f5f5f5; border-radius: 18px; padding: 16px 20px; margin-bottom: 14px; display: flex; align-items: center; gap: 8px;">
+          <span style="font-size: 24px; font-weight: 800; color: #ccc;">R$</span>
+          <input type="number" placeholder="0,00" value="{{ entryAmount }}" onChange="{{ onAmount }}" style="border: none; background: transparent; font-size: 30px; font-weight: 800; color: #111; flex: 1; min-width: 0; font-family: inherit;" />
+        </div>
+
+        <!-- Description -->
+        <div style="background: #f5f5f5; border-radius: 16px; padding: 14px 18px; margin-bottom: 18px;">
+          <input type="text" placeholder="Descrição (opcional)" value="{{ entryDesc }}" onChange="{{ onDesc }}" style="border: none; background: transparent; font-size: 15px; color: #111; width: 100%; font-family: inherit; font-weight: 500;" />
+        </div>
+
+        <!-- Categories -->
+        <p style="font-size: 10px; color: #aaa; font-weight: 700; letter-spacing: 1px; margin-bottom: 10px;">CATEGORIA</p>
+        <div style="display: flex; gap: 8px; overflow-x: auto; padding-bottom: 4px; margin-bottom: 18px;">
+          <sc-for list="{{ dispCats }}" as="cat" hint-placeholder-count="5">
+            <button onClick="{{ cat.onClick }}" style="{{ cat.itemStyle }}">
+              <span style="font-size: 22px;">{{ cat.icon }}</span>
+              <span style="{{ cat.labelStyle }}">{{ cat.name }}</span>
+            </button>
+          </sc-for>
+        </div>
+
+        <!-- Methods -->
+        <p style="font-size: 10px; color: #aaa; font-weight: 700; letter-spacing: 1px; margin-bottom: 10px;">MÉTODO</p>
+        <div style="display: flex; gap: 8px; flex-wrap: wrap; margin-bottom: 24px;">
+          <sc-for list="{{ methodList }}" as="m" hint-placeholder-count="4">
+            <button onClick="{{ m.onClick }}" style="{{ m.mStyle }}">{{ m.label }}</button>
+          </sc-for>
+        </div>
+
+        <button onClick="{{ submitEntry }}" style="width: 100%; background: #111; color: white; border: none; border-radius: 18px; padding: 17px; font-size: 16px; font-weight: 800; cursor: pointer; font-family: inherit; letter-spacing: -0.2px;">Salvar lançamento</button>
+      </div>
+    </div>
+  </sc-if>
+
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props="{&quot;$preview&quot;: {&quot;width&quot;: 460, &quot;height&quot;: 924}}">
+class Component extends DCLogic {
+  state = {
+    screen: 'dashboard',
+    showModal: false,
+    selectedCard: 0,
+    newEntry: { type: 'despesa', amount: '', category: 'Alimentação', description: '', method: 'pix' },
+    transactions: [
+      { id: 1, type: 'despesa', amount: 45.00, category: 'Alimentação', description: 'Lanche', date: '2025-06-13', method: 'pix', icon: '🍔' },
+      { id: 2, type: 'despesa', amount: 23.50, category: 'Transporte', description: 'Uber', date: '2025-06-12', method: 'crédito', icon: '🚗' },
+      { id: 3, type: 'despesa', amount: 187.30, category: 'Alimentação', description: 'Mercado Extra', date: '2025-06-11', method: 'débito', icon: '🛒' },
+      { id: 4, type: 'despesa', amount: 39.90, category: 'Lazer', description: 'Netflix', date: '2025-06-10', method: 'crédito', icon: '🎬' },
+      { id: 5, type: 'despesa', amount: 56.00, category: 'Saúde', description: 'Farmácia', date: '2025-06-08', method: 'pix', icon: '💊' },
+      { id: 6, type: 'receita', amount: 5000.00, category: 'Salário', description: 'Salário junho', date: '2025-06-05', method: 'pix', icon: '💰' },
+      { id: 7, type: 'despesa', amount: 1500.00, category: 'Moradia', description: 'Aluguel junho', date: '2025-06-05', method: 'pix', icon: '🏠' },
+      { id: 8, type: 'despesa', amount: 120.00, category: 'Transporte', description: 'Gasolina', date: '2025-06-03', method: 'débito', icon: '⛽' },
+      { id: 9, type: 'despesa', amount: 89.00, category: 'Alimentação', description: 'Restaurante', date: '2025-06-02', method: 'crédito', icon: '🍽️' },
+      { id: 10, type: 'receita', amount: 800.00, category: 'Freelance', description: 'Projeto web', date: '2025-06-01', method: 'pix', icon: '💻' },
+    ],
+    budgets: [
+      { id: 1, category: 'Alimentação', limit: 800, icon: '🍔', color: '#f97316' },
+      { id: 2, category: 'Transporte', limit: 400, icon: '🚗', color: '#3b82f6' },
+      { id: 3, category: 'Moradia', limit: 1600, icon: '🏠', color: '#8b5cf6' },
+      { id: 4, category: 'Lazer', limit: 200, icon: '🎬', color: '#ec4899' },
+      { id: 5, category: 'Saúde', limit: 300, icon: '💊', color: '#22c55e' },
+    ],
+    cards: [
+      { id: 1, name: 'Nubank', brand: 'Mastercard', last4: '1234', limit: 5000, closingDay: 10, dueDay: 17, color: '#7C3AED' },
+      { id: 2, name: 'Inter', brand: 'Mastercard', last4: '5678', limit: 3000, closingDay: 15, dueDay: 22, color: '#EA580C' },
+    ],
+  };
+
+  f(v) {
+    return new Intl.NumberFormat('pt-BR', { style: 'currency', currency: 'BRL' }).format(v);
+  }
+
+  fd(d) {
+    const p = d.split('-');
+    const ms = ['Jan','Fev','Mar','Abr','Mai','Jun','Jul','Ago','Set','Out','Nov','Dez'];
+    return p[2] + ' ' + ms[parseInt(p[1], 10) - 1];
+  }
+
+  makeDonut(data, total) {
+    if (!data.length || total === 0) return null;
+    const size = 140, cx = 70, cy = 70, r = 56, ir = 37;
+    let a = -Math.PI / 2;
+    const paths = data.slice(0, 5).map((d, i) => {
+      const sw = (d.value / total) * 2 * Math.PI;
+      if (sw < 0.04) return null;
+      const sa = a, ea = a + sw;
+      a = ea;
+      const la = sw > Math.PI ? 1 : 0;
+      const c = Math.cos, s = Math.sin;
+      const path = `M${cx+r*c(sa)},${cy+r*s(sa)} A${r},${r},0,${la},1,${cx+r*c(ea)},${cy+r*s(ea)} L${cx+ir*c(ea)},${cy+ir*s(ea)} A${ir},${ir},0,${la},0,${cx+ir*c(sa)},${cy+ir*s(sa)}Z`;
+      return React.createElement('path', { key: i, d: path, fill: d.color, stroke: 'white', strokeWidth: 2 });
+    }).filter(Boolean);
+    const ff = "'Plus Jakarta Sans', sans-serif";
+    return React.createElement('svg', { width: size, height: size, style: { display: 'block' } },
+      ...paths,
+      React.createElement('text', { x: cx, y: cy - 7, textAnchor: 'middle', fontSize: 10, fill: '#aaa', fontFamily: ff, fontWeight: '600' }, 'Gastos'),
+      React.createElement('text', { x: cx, y: cy + 11, textAnchor: 'middle', fontSize: 13, fill: '#111', fontFamily: ff, fontWeight: '800' }, 'R$' + (total / 1000).toFixed(1) + 'k')
+    );
+  }
+
+  renderVals() {
+    const { screen, showModal, transactions, budgets, cards, selectedCard, newEntry } = this.state;
+    const f = v => this.f(v);
+    const fd = d => this.fd(d);
+
+    const month = transactions.filter(t => t.date.startsWith('2025-06'));
+    const income = month.filter(t => t.type === 'receita').reduce((s, t) => s + t.amount, 0);
+    const expense = month.filter(t => t.type === 'despesa').reduce((s, t) => s + t.amount, 0);
+    const balance = 18561.20 + income - expense;
+
+    const totalLimit = budgets.reduce((s, b) => s + b.limit, 0);
+    const overallPct = totalLimit > 0 ? Math.min(100, Math.round((expense / totalLimit) * 100)) : 0;
+
+    const budgetsWithSpent = budgets.map(b => {
+      const spent = month.filter(t => t.type === 'despesa' && t.category === b.category).reduce((s, t) => s + t.amount, 0);
+      const pct = b.limit > 0 ? Math.round((spent / b.limit) * 100) : 0;
+      const st = pct >= 100 ? 'over' : pct >= 80 ? 'warn' : 'ok';
+      const sc = st === 'over' ? '#ef4444' : st === 'warn' ? '#f59e0b' : '#22c55e';
+      const bc = st === 'over' ? '#ef4444' : st === 'warn' ? '#f59e0b' : b.color;
+      return {
+        ...b, spent, pct, pctLabel: pct + '%', statusColor: sc,
+        badgeStyle: { background: st === 'over' ? '#fef2f2' : st === 'warn' ? '#fffbeb' : '#f0fdf4', borderRadius: 10, padding: '4px 10px' },
+        spentFmt: f(spent), limitFmt: f(b.limit), remainFmt: f(Math.max(0, b.limit - spent)),
+        barSm: { width: `${Math.min(pct,100)}%`, height: 4, background: bc, borderRadius: 4, transition: 'width 0.6s ease' },
+        barLg: { width: `${Math.min(pct,100)}%`, height: 8, background: bc, borderRadius: 8, transition: 'width 0.6s ease' },
+      };
+    });
+
+    const sorted = [...month].sort((a, b) => b.date.localeCompare(a.date));
+    const recent = sorted.slice(0, 5).map(t => ({ ...t, amtFmt: (t.type === 'receita' ? '+' : '−') + f(t.amount), amtColor: t.type === 'receita' ? '#16a34a' : '#111', dateFmt: fd(t.date) }));
+
+    const dm = {};
+    sorted.forEach(t => { (dm[t.date] = dm[t.date] || []).push({ ...t, amtFmt: (t.type === 'receita' ? '+' : '−') + f(t.amount), amtColor: t.type === 'receita' ? '#16a34a' : '#ef4444' }); });
+    const txGroups = Object.entries(dm).map(([date, items]) => ({ date, label: fd(date), items }));
+
+    const creditTx = month.filter(t => t.method === 'crédito');
+    const creditUsed = creditTx.reduce((s, t) => s + t.amount, 0);
+    const cardData = cards.map((card, i) => {
+      const pct = card.limit > 0 ? Math.min(100, Math.round((creditUsed / card.limit) * 100)) : 0;
+      return {
+        ...card,
+        usedFmt: f(creditUsed), limitFmt: f(card.limit), availFmt: f(card.limit - creditUsed),
+        pct, pctLabel: pct + '%',
+        limitBarStyle: { width: `${pct}%`, height: 8, background: card.color, borderRadius: 8, transition: 'width 0.6s ease' },
+        tabStyle: i === selectedCard
+          ? { flex: 1, background: '#111', color: 'white', padding: '9px 0', borderRadius: 12, fontSize: 13, fontWeight: '700', cursor: 'pointer', border: 'none', fontFamily: 'inherit' }
+          : { flex: 1, background: 'transparent', color: '#888', padding: '9px 0', borderRadius: 12, fontSize: 13, fontWeight: '500', cursor: 'pointer', border: 'none', fontFamily: 'inherit' },
+        onClick: () => this.setState({ selectedCard: i }),
+      };
+    });
+    const cc = cardData[selectedCard] || cardData[0];
+    const invoiceTx = creditTx.map(t => ({ ...t, amtFmt: f(t.amount), dateFmt: fd(t.date) }));
+
+    const iH = [3200, 5000, 4500, 5000, 5800, Math.max(income, 100)];
+    const eH = [2800, 3100, 2600, 3400, 2900, Math.max(expense, 100)];
+    const mons = ['Jan', 'Fev', 'Mar', 'Abr', 'Mai', 'Jun'];
+    const mxH = Math.max(...iH, ...eH);
+    const bH = 108;
+    const chartBars = mons.map((m, i) => ({
+      month: m,
+      iBar: { width: 11, height: Math.max(5, (iH[i] / mxH) * bH), background: '#22c55e', borderRadius: '5px 5px 0 0' },
+      eBar: { width: 11, height: Math.max(5, (eH[i] / mxH) * bH), background: '#111', borderRadius: '5px 5px 0 0' },
+    }));
+
+    const catMap = {};
+    month.filter(t => t.type === 'despesa').forEach(t => { catMap[t.category] = (catMap[t.category] || 0) + t.amount; });
+    const donutRaw = Object.entries(catMap).map(([cat, val]) => {
+      const b = budgets.find(x => x.category === cat);
+      return { label: cat, value: val, color: b ? b.color : '#aaa', icon: b ? b.icon : '📦' };
+    }).sort((a, b) => b.value - a.value);
+    const donutChart = this.makeDonut(donutRaw, expense);
+    const catBreakdown = donutRaw.map(d => ({
+      ...d, valFmt: f(d.value),
+      pct: expense > 0 ? Math.round((d.value / expense) * 100) : 0,
+      pctLabel: (expense > 0 ? Math.round((d.value / expense) * 100) : 0) + '%',
+      barStyle: { width: `${expense > 0 ? Math.round((d.value / expense) * 100) : 0}%`, height: 4, background: d.color, borderRadius: 4, transition: 'width 0.6s ease' },
+    }));
+
+    const catList = newEntry.type === 'receita'
+      ? [{ name: 'Salário', icon: '💰' }, { name: 'Freelance', icon: '💻' }, { name: 'Investimentos', icon: '📈' }, { name: 'Outros', icon: '📦' }]
+      : [{ name: 'Alimentação', icon: '🍔' }, { name: 'Transporte', icon: '🚗' }, { name: 'Moradia', icon: '🏠' }, { name: 'Lazer', icon: '🎬' }, { name: 'Saúde', icon: '💊' }, { name: 'Educação', icon: '📚' }, { name: 'Outros', icon: '📦' }];
+
+    const dispCats = catList.map(c => ({
+      ...c, onClick: () => this.setState(s => ({ newEntry: { ...s.newEntry, category: c.name } })),
+      itemStyle: { display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 5, padding: '10px 8px', borderRadius: 14, cursor: 'pointer', minWidth: 60, background: c.name === newEntry.category ? '#111' : '#f0f0f0', border: 'none', fontFamily: 'inherit' },
+      labelStyle: { fontSize: 10, fontWeight: '700', color: c.name === newEntry.category ? 'white' : '#555', whiteSpace: 'nowrap' },
+    }));
+
+    const methodList = ['pix','débito','crédito','dinheiro'].map((v, i) => ({
+      value: v, label: ['PIX','Débito','Crédito','Dinheiro'][i],
+      onClick: () => this.setState(s => ({ newEntry: { ...s.newEntry, method: v } })),
+      mStyle: { padding: '8px 16px', borderRadius: 20, cursor: 'pointer', fontSize: 13, fontWeight: '600', background: v === newEntry.method ? '#111' : '#f0f0f0', color: v === newEntry.method ? 'white' : '#666', border: 'none', fontFamily: 'inherit' },
+    }));
+
+    const upcoming = [
+      { name: 'Nubank · fatura', amount: f(creditUsed), date: '17/06', icon: '💳', days: 4, dColor: '#f59e0b' },
+      { name: 'Spotify Premium', amount: f(19.90), date: '18/06', icon: '🎵', days: 5, dColor: '#bbb' },
+      { name: 'Academia Smart Fit', amount: f(89.00), date: '20/06', icon: '💪', days: 7, dColor: '#bbb' },
+    ];
+
+    const nb = key => ({
+      background: screen === key ? 'rgba(255,255,255,0.13)' : 'transparent',
+      border: 'none', cursor: 'pointer', padding: '8px 10px', borderRadius: 18,
+      display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 3,
+      color: screen === key ? 'white' : 'rgba(255,255,255,0.4)', fontFamily: 'inherit',
+    });
+
+    return {
+      isDashboard: screen === 'dashboard',
+      isTransactions: screen === 'transactions',
+      isBudgets: screen === 'budgets',
+      isCards: screen === 'cards',
+      isReports: screen === 'reports',
+
+      navHome: nb('dashboard'), navTx: nb('transactions'), navBudget: nb('budgets'),
+      navCards: nb('cards'), navReports: nb('reports'),
+
+      goToDashboard: () => this.setState({ screen: 'dashboard' }),
+      goToTransactions: () => this.setState({ screen: 'transactions' }),
+      goToBudgets: () => this.setState({ screen: 'budgets' }),
+      goToCards: () => this.setState({ screen: 'cards' }),
+      goToReports: () => this.setState({ screen: 'reports' }),
+
+      balance: f(balance), totalIncome: f(income), totalExpense: f(expense),
+      budgetsWithSpent, recent, upcoming, txGroups,
+
+      totalBudget: f(totalLimit), totalSpent: f(expense),
+      budgetRemain: f(Math.max(0, totalLimit - expense)),
+      overallBarStyle: { width: `${overallPct}%`, height: 8, background: overallPct >= 100 ? '#ef4444' : overallPct >= 80 ? '#f59e0b' : '#22c55e', borderRadius: 8, transition: 'width 0.6s ease' },
+
+      cardData, cc, invoiceTx,
+      chartBars, donutChart, catBreakdown,
+      totalIncomeFmt: f(income), totalExpenseFmt: f(expense),
+
+      showModal,
+      openExpenseModal: () => this.setState({ showModal: true, newEntry: { type: 'despesa', amount: '', category: 'Alimentação', description: '', method: 'pix' } }),
+      openIncomeModal: () => this.setState({ showModal: true, newEntry: { type: 'receita', amount: '', category: 'Salário', description: '', method: 'pix' } }),
+      closeModal: () => this.setState({ showModal: false }),
+      modalTitle: newEntry.type === 'receita' ? 'Nova Receita' : 'Nova Despesa',
+
+      typeDStyle: newEntry.type === 'despesa'
+        ? { flex: 1, padding: '9px 0', borderRadius: 14, background: '#111', color: 'white', fontWeight: '700', cursor: 'pointer', border: 'none', fontSize: 14, fontFamily: 'inherit' }
+        : { flex: 1, padding: '9px 0', borderRadius: 14, background: 'transparent', color: '#aaa', cursor: 'pointer', border: 'none', fontSize: 14, fontFamily: 'inherit' },
+      typeRStyle: newEntry.type === 'receita'
+        ? { flex: 1, padding: '9px 0', borderRadius: 14, background: '#16a34a', color: 'white', fontWeight: '700', cursor: 'pointer', border: 'none', fontSize: 14, fontFamily: 'inherit' }
+        : { flex: 1, padding: '9px 0', borderRadius: 14, background: 'transparent', color: '#aaa', cursor: 'pointer', border: 'none', fontSize: 14, fontFamily: 'inherit' },
+
+      setDespesa: () => this.setState(s => ({ newEntry: { ...s.newEntry, type: 'despesa', category: 'Alimentação' } })),
+      setReceita: () => this.setState(s => ({ newEntry: { ...s.newEntry, type: 'receita', category: 'Salário' } })),
+      entryAmount: newEntry.amount,
+      entryDesc: newEntry.description,
+      onAmount: e => this.setState(s => ({ newEntry: { ...s.newEntry, amount: e.target.value } })),
+      onDesc: e => this.setState(s => ({ newEntry: { ...s.newEntry, description: e.target.value } })),
+      dispCats, methodList,
+
+      submitEntry: () => {
+        const ne = this.state.newEntry;
+        const amt = parseFloat(String(ne.amount).replace(',', '.'));
+        if (!amt || isNaN(amt)) return;
+        const icons = { Alimentação:'🍔', Transporte:'🚗', Moradia:'🏠', Lazer:'🎬', Saúde:'💊', Educação:'📚', Salário:'💰', Freelance:'💻', Investimentos:'📈', Outros:'📦' };
+        this.setState(s => ({
+          transactions: [{ id: Date.now(), type: ne.type, amount: amt, category: ne.category, description: ne.description || ne.category, date: '2025-06-13', method: ne.method, icon: icons[ne.category] || '📦' }, ...s.transactions],
+          showModal: false,
+        }));
+      },
+    };
+  }
+}
+</script>
+</body>
+</html>
