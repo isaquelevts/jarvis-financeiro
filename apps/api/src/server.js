@@ -193,4 +193,8 @@ app.use((error, _req, res, _next) => {
   res.status(500).json({ error: "Erro interno" });
 });
 
-app.listen(port, () => console.log(`Jarvis API listening on http://localhost:${port}`));
+if (!process.env.VERCEL) {
+  app.listen(port, () => console.log(`Jarvis API listening on http://localhost:${port}`));
+}
+
+export default app;
