@@ -977,6 +977,55 @@ button {
   padding: 18px;
 }
 
+.monthly-invoice-card {
+  margin: 0 20px 14px;
+  padding: 18px;
+}
+
+.monthly-invoice-card .section-title b {
+  font-size: 18px;
+  font-weight: 800;
+  color: #111;
+}
+
+.monthly-invoice-list {
+  display: grid;
+  gap: 6px;
+}
+
+.monthly-invoice-list button {
+  min-width: 0;
+  border: 0;
+  border-radius: 12px;
+  background: #f7f7f7;
+  color: #111;
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr) auto;
+  align-items: center;
+  gap: 9px;
+  padding: 10px 12px;
+  text-align: left;
+}
+
+.monthly-invoice-list span:not(.card-dot) {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  font-size: 13px;
+  font-weight: 800;
+}
+
+.monthly-invoice-list strong {
+  font-size: 13px;
+  font-weight: 800;
+}
+
+.card-dot {
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+}
+
 .card-actions {
   display: flex;
   gap: 10px;
@@ -1732,6 +1781,7 @@ button {
   .donut-card,
   .credit-visual-single,
   .card-limit,
+  .monthly-invoice-card,
   .card-actions,
   .recurring-summary {
     margin-left: 0;

@@ -465,7 +465,7 @@ function FinanceApp({ onLogout }) {
                 {screen === "dashboard" && <Dashboard model={model} month={month} setMonth={setMonth} openModal={openModal} setScreen={setScreen} />}
                 {screen === "transactions" && <Transactions model={model} month={month} setMonth={setMonth} openModal={openModal} onDelete={ops.deleteTransaction} />}
                 {screen === "budgets" && <Budgets model={model} openModal={openModal} />}
-                {screen === "cards" && <Cards model={model} selectedCard={selectedCard} setSelectedCard={setSelectedCard} openModal={openModal} deleteInstallment={ops.deleteInstallment} />}
+                {screen === "cards" && <Cards model={model} month={month} setMonth={setMonth} selectedCard={selectedCard} setSelectedCard={setSelectedCard} openModal={openModal} deleteInstallment={ops.deleteInstallment} />}
                 {screen === "reports" && <Reports model={model} month={month} setMonth={setMonth} />}
                 {screen === "fixas" && <Fixas model={model} openModal={openModal} onUpdate={ops.updateRecurring} onDelete={ops.deleteRecurring} />}
               </>
@@ -1099,22 +1099,34 @@ function InstallmentRow({ inst, onEdit, onDelete }) {
   );
 }
 
-function Cards({ model, selectedCard, setSelectedCard, openModal, deleteInstallment }) {
+function Cards({ model, month, setMonth, selectedCard, setSelectedCard, openModal, deleteInstallment }) {
+  const currentMonth = month;
   const card = model.cards[selectedCard] || model.cards[0];
   const cardInstallments = card ? (model.installments || []).filter(i => i.cardId === card.id) : [];
   const cardExpenseForCard = card ? model.cardExpense.filter(tx => tx.cardId ? tx.cardId === card.id : selectedCard === 0) : [];
-  const installmentLimitUsed = cardInstallments.reduce((s, inst) => s + installmentRemaining(inst, todayYM()), 0);
+  const installmentLimitUsed = cardInstallments.reduce((s, inst) => s + installmentRemaining(inst, currentMonth), 0);
   const installmentInvoiceItems = cardInstallments
-    .map(inst => ({ ...inst, currentAmount: installmentCurrentAmount(inst, todayYM()) }))
+    .map(inst => ({ ...inst, currentAmount: installmentCurrentAmount(inst, currentMonth) }))
     .filter(inst => inst.currentAmount > 0);
   const used = cardExpenseForCard.reduce((s, tx) => s + tx.amount, 0) + installmentLimitUsed;
   const invoiceTotal = cardExpenseForCard.reduce((s, tx) => s + tx.amount, 0) + installmentInvoiceItems.reduce((s, inst) => s + inst.currentAmount, 0);
   const pct = card?.limit ? Math.round((used / card.limit) * 100) : 0;
+  const monthlyInvoices = model.cards.map((item, index) => {
+    const txTotal = model.cardExpense
+      .filter(tx => tx.cardId ? tx.cardId === item.id : index === 0)
+      .reduce((s, tx) => s + tx.amount, 0);
+    const installmentTotal = (model.installments || [])
+      .filter(inst => inst.cardId === item.id)
+      .reduce((s, inst) => s + installmentCurrentAmount(inst, currentMonth), 0);
+    return { card: item, total: txTotal + installmentTotal, txTotal, installmentTotal };
+  });
+  const monthlyInvoiceTotal = monthlyInvoices.reduce((s, item) => s + item.total, 0);
 
   return (
     <div className="screen">
       <header className="topbar simple">
         <h1>Cartões</h1>
+        <MonthPicker value={month} onChange={setMonth} />
         <button className="round-button dark" onClick={() => openModal("card")} aria-label="Novo cartão">
           <Plus size={20} />
         </button>
@@ -1141,6 +1153,22 @@ function Cards({ model, selectedCard, setSelectedCard, openModal, deleteInstallm
               </div>
             ))}
           </div>
+
+          <section className="white-card monthly-invoice-card">
+            <div className="section-title tight">
+              <h2>Faturas do mês</h2>
+              <b>{money(monthlyInvoiceTotal)}</b>
+            </div>
+            <div className="monthly-invoice-list">
+              {monthlyInvoices.map(item => (
+                <button type="button" key={item.card.id} onClick={() => setSelectedCard(model.cards.findIndex(c => c.id === item.card.id))}>
+                  <span className="card-dot" style={{ background: item.card.color }} />
+                  <span>{item.card.name}</span>
+                  <strong>{money(item.total)}</strong>
+                </button>
+              ))}
+            </div>
+          </section>
 
           {card && (
             <>
