@@ -87,7 +87,7 @@ function toInstallment(row) {
 
 async function getAllData() {
   const [tx, budgets, cards, recurring, installments] = await Promise.all([
-    query("SELECT *, occurred_on::text FROM transactions ORDER BY occurred_on DESC, created_at DESC"),
+    query("SELECT *, occurred_on::text FROM transactions ORDER BY transactions.occurred_on DESC, transactions.created_at DESC"),
     query("SELECT * FROM budgets ORDER BY created_at ASC"),
     query("SELECT * FROM cards ORDER BY created_at ASC"),
     query("SELECT * FROM recurring_bills ORDER BY due_day ASC"),
@@ -108,7 +108,7 @@ app.get("/api/health", (_req, res) => res.json({ ok: true }));
 app.get("/api/summary", async (_req, res, next) => { try { res.json(await getAllData()); } catch (e) { next(e); } });
 
 // Transactions
-app.get("/api/transactions", async (_req, res, next) => { try { const r = await query("SELECT *, occurred_on::text FROM transactions ORDER BY occurred_on DESC, created_at DESC"); res.json(r.rows.map(toTransaction)); } catch (e) { next(e); } });
+app.get("/api/transactions", async (_req, res, next) => { try { const r = await query("SELECT *, occurred_on::text FROM transactions ORDER BY transactions.occurred_on DESC, transactions.created_at DESC"); res.json(r.rows.map(toTransaction)); } catch (e) { next(e); } });
 app.post("/api/transactions", async (req, res, next) => {
   try {
     const p = transactionSchema.parse(req.body);
