@@ -190,17 +190,17 @@ function monthsBetween(ym1, ym2) {
 function useFinanceData() {
   const [data, setData] = useState({ transactions: [], budgets: [], cards: [], recurring: [], installments: [] });
   const [loading, setLoading] = useState(true);
-  const [isDemo, setIsDemo] = useState(false);
+  const [error, setError] = useState(null);
 
   async function load() {
     try {
-      setIsDemo(false);
+      setLoading(true);
+      setError(null);
       const res = await fetch(`${API_URL}/summary`);
-      if (!res.ok) throw new Error();
+      if (!res.ok) throw new Error(`Não foi possível carregar os dados do banco (${res.status}).`);
       setData(await res.json());
-    } catch {
-      setData(demoData);
-      setIsDemo(true);
+    } catch (err) {
+      setError(err.message || "Erro de conexão com o banco de dados.");
     } finally {
       setLoading(false);
     }
@@ -221,97 +221,76 @@ function useFinanceData() {
 
   // Transactions
   async function createTransaction(payload) {
-    if (isDemo) {
-      const item = { id: `d-${Date.now()}`, ...payload, occurredOn: new Date().toISOString().slice(0, 10), createdAt: new Date().toISOString() };
-      setData(d => ({ ...d, transactions: [item, ...d.transactions] }));
-      return;
-    }
     const item = await callApi("POST", "/transactions", payload);
     setData(d => ({ ...d, transactions: [item, ...d.transactions] }));
   }
 
   async function deleteTransaction(id) {
-    if (isDemo) { setData(d => ({ ...d, transactions: d.transactions.filter(t => t.id !== id) })); return; }
     await callApi("DELETE", `/transactions/${id}`);
     setData(d => ({ ...d, transactions: d.transactions.filter(t => t.id !== id) }));
   }
 
   // Budgets
   async function createBudget(payload) {
-    if (isDemo) { setData(d => ({ ...d, budgets: [...d.budgets, { id: `b-${Date.now()}`, ...payload }] })); return; }
     const item = await callApi("POST", "/budgets", payload);
     setData(d => ({ ...d, budgets: [...d.budgets, item] }));
   }
 
   async function updateBudget(id, payload) {
-    if (isDemo) { setData(d => ({ ...d, budgets: d.budgets.map(b => b.id === id ? { ...b, ...payload } : b) })); return; }
     const item = await callApi("PUT", `/budgets/${id}`, payload);
     setData(d => ({ ...d, budgets: d.budgets.map(b => b.id === id ? item : b) }));
   }
 
   async function deleteBudget(id) {
-    if (isDemo) { setData(d => ({ ...d, budgets: d.budgets.filter(b => b.id !== id) })); return; }
     await callApi("DELETE", `/budgets/${id}`);
     setData(d => ({ ...d, budgets: d.budgets.filter(b => b.id !== id) }));
   }
 
   // Cards
   async function createCard(payload) {
-    if (isDemo) { setData(d => ({ ...d, cards: [...d.cards, { id: `c-${Date.now()}`, ...payload }] })); return; }
     const item = await callApi("POST", "/cards", payload);
     setData(d => ({ ...d, cards: [...d.cards, item] }));
   }
 
   async function updateCard(id, payload) {
-    if (isDemo) { setData(d => ({ ...d, cards: d.cards.map(c => c.id === id ? { ...c, ...payload } : c) })); return; }
     const item = await callApi("PUT", `/cards/${id}`, payload);
     setData(d => ({ ...d, cards: d.cards.map(c => c.id === id ? item : c) }));
   }
 
   async function deleteCard(id) {
-    if (isDemo) { setData(d => ({ ...d, cards: d.cards.filter(c => c.id !== id) })); return; }
     await callApi("DELETE", `/cards/${id}`);
     setData(d => ({ ...d, cards: d.cards.filter(c => c.id !== id) }));
   }
 
   // Recurring
   async function createRecurring(payload) {
-    if (isDemo) { setData(d => ({ ...d, recurring: [...d.recurring, { id: `r-${Date.now()}`, active: true, ...payload }] })); return; }
     const item = await callApi("POST", "/recurring", payload);
     setData(d => ({ ...d, recurring: [...d.recurring, item] }));
   }
 
   async function updateRecurring(id, payload) {
-    if (isDemo) { setData(d => ({ ...d, recurring: d.recurring.map(r => r.id === id ? { ...r, ...payload } : r) })); return; }
     const item = await callApi("PUT", `/recurring/${id}`, payload);
     setData(d => ({ ...d, recurring: d.recurring.map(r => r.id === id ? item : r) }));
   }
 
   async function deleteRecurring(id) {
-    if (isDemo) { setData(d => ({ ...d, recurring: d.recurring.filter(r => r.id !== id) })); return; }
     await callApi("DELETE", `/recurring/${id}`);
     setData(d => ({ ...d, recurring: d.recurring.filter(r => r.id !== id) }));
   }
 
   // Installments
   async function createInstallment(payload) {
-    if (isDemo) {
-      const item = { id: `i-${Date.now()}`, ...payload };
-      setData(d => ({ ...d, installments: [...(d.installments || []), item] }));
-      return;
-    }
     const item = await callApi("POST", "/installments", payload);
     setData(d => ({ ...d, installments: [...(d.installments || []), item] }));
   }
 
   async function deleteInstallment(id) {
-    if (isDemo) { setData(d => ({ ...d, installments: (d.installments || []).filter(i => i.id !== id) })); return; }
     await callApi("DELETE", `/installments/${id}`);
     setData(d => ({ ...d, installments: (d.installments || []).filter(i => i.id !== id) }));
   }
 
   return {
-    data, loading, isDemo, reload: load,
+    data, loading, error, reload: load,
     createTransaction, deleteTransaction,
     createBudget, updateBudget, deleteBudget,
     createCard, updateCard, deleteCard,
@@ -362,7 +341,7 @@ function enrichData(data, month) {
 
 function App() {
   const ops = useFinanceData();
-  const { data, loading, isDemo, reload } = ops;
+  const { data, loading, error, reload } = ops;
   const [screen, setScreen] = useState("dashboard");
   const [month, setMonth] = useState(todayYM);
   const [modal, setModal] = useState(null);
@@ -378,9 +357,8 @@ function App() {
       <main className="page-shell">
         <section className="phone">
           <StatusBar />
-          {isDemo && <DemoBanner onRetry={reload} />}
           <div className="content">
-            {loading ? <LoadingState /> : (
+            {loading ? <LoadingState /> : error ? <ErrorState message={error} onRetry={reload} /> : (
               <>
                 {screen === "dashboard" && <Dashboard model={model} month={month} setMonth={setMonth} openModal={openModal} setScreen={setScreen} />}
                 {screen === "transactions" && <Transactions model={model} month={month} setMonth={setMonth} openModal={openModal} onDelete={ops.deleteTransaction} />}
@@ -521,11 +499,16 @@ function LoadingState() {
   );
 }
 
-function DemoBanner({ onRetry }) {
+function ErrorState({ message, onRetry }) {
   return (
-    <button className="demo-banner" onClick={onRetry}>
-      Modo demo · banco desconectado
-    </button>
+    <div className="center-state">
+      <p style={{ color: "#ef4444", fontWeight: "600", textAlign: "center", padding: "0 20px", marginBottom: 14 }}>
+        {message}
+      </p>
+      <button onClick={onRetry} className="demo-banner" style={{ background: "#ef4444", color: "#fff", position: "static", borderRadius: 8, padding: "8px 16px" }}>
+        Tentar novamente
+      </button>
+    </div>
   );
 }
 
