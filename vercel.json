@@ -1,6 +1,6 @@
 {
-  "buildCommand": "npm install && (node apps/api/src/migrate.js || true) && npm --workspace apps/web run build",
-  "outputDirectory": "apps/web/dist",
+  "buildCommand": "npm install && (node apps/api/src/migrate.js || true) && npm --workspace apps/web run build -- --outDir ../../dist",
+  "outputDirectory": "dist",
   "installCommand": "npm install",
   "rewrites": [
     { "source": "/api/:path*", "destination": "/api/index.js" }
