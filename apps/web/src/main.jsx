@@ -168,6 +168,11 @@ function todayYM() {
   return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, "0")}`;
 }
 
+function todayDate() {
+  const d = new Date();
+  return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, "0")}-${String(d.getDate()).padStart(2, "0")}`;
+}
+
 function adjustMonth(ym, delta) {
   const [y, m] = ym.split("-").map(Number);
   const d = new Date(y, m - 1 + delta, 1);
@@ -188,6 +193,13 @@ function monthsBetween(ym1, ym2) {
   const [y1, m1] = ym1.split("-").map(Number);
   const [y2, m2] = ym2.split("-").map(Number);
   return (y2 - y1) * 12 + (m2 - m1);
+}
+
+function decimalInput(value) {
+  return String(value)
+    .replace(/[^\d,.]/g, "")
+    .replace(/([,.].*)[,.]/g, "$1")
+    .replace(/^(\d*[,.]\d{0,2}).*$/, "$1");
 }
 
 // ─── Data hook ────────────────────────────────────────────────────────────────
@@ -289,6 +301,11 @@ function useFinanceData() {
     setData(d => ({ ...d, installments: [...(d.installments || []), item] }));
   }
 
+  async function updateInstallment(id, payload) {
+    const item = await callApi("PUT", `/installments/${id}`, payload);
+    setData(d => ({ ...d, installments: (d.installments || []).map(i => i.id === id ? item : i) }));
+  }
+
   async function deleteInstallment(id) {
     await callApi("DELETE", `/installments/${id}`);
     setData(d => ({ ...d, installments: (d.installments || []).filter(i => i.id !== id) }));
@@ -300,7 +317,7 @@ function useFinanceData() {
     createBudget, updateBudget, deleteBudget,
     createCard, updateCard, deleteCard,
     createRecurring, updateRecurring, deleteRecurring,
-    createInstallment, deleteInstallment,
+    createInstallment, updateInstallment, deleteInstallment,
   };
 }
 
@@ -481,9 +498,11 @@ function FinanceApp({ onLogout }) {
           {modal?.type === "installment" && (
             <InstallmentModal
               cardId={modal.data?.cardId}
+              installment={modal.data?.id ? modal.data : null}
               cards={model.cards}
               onClose={closeModal}
-              onSave={async p => { await ops.createInstallment(p); closeModal(); }}
+              onSave={async p => { modal.data?.id ? await ops.updateInstallment(modal.data.id, p) : await ops.createInstallment(p); closeModal(); }}
+              onDelete={modal.data?.id ? async () => { await ops.deleteInstallment(modal.data.id); closeModal(); } : null}
             />
           )}
         </section>
@@ -1038,11 +1057,11 @@ function Budgets({ model, openModal }) {
 
 // ─── Cards ────────────────────────────────────────────────────────────────────
 
-function InstallmentRow({ inst, onDelete }) {
+function InstallmentRow({ inst, onEdit, onDelete }) {
   const idx = monthsBetween(inst.startMonth, todayYM());
   const installmentNum = Math.min(Math.max(1, idx + 1), inst.totalInstallments);
   return (
-    <article className="transaction-row">
+    <article className="transaction-row installment-row">
       <span className="icon-box"><Icon name={inst.icon || "CreditCard"} /></span>
       <div>
         <h3>{inst.description}</h3>
@@ -1050,6 +1069,9 @@ function InstallmentRow({ inst, onDelete }) {
       </div>
       <span className="installment-badge">{inst.totalInstallments - Math.max(0, idx)} restantes</span>
       <strong className="negative">-{money(inst.amountPerInstallment)}</strong>
+      <button className="tx-action-btn" onClick={() => onEdit(inst)} aria-label="Editar">
+        <Pencil size={13} />
+      </button>
       <button className="tx-delete-btn" onClick={() => onDelete(inst.id)} aria-label="Excluir">
         <Trash2 size={13} />
       </button>
@@ -1131,7 +1153,7 @@ function Cards({ model, selectedCard, setSelectedCard, openModal, deleteInstallm
                 {cardInstallments.length ? (
                   <div className="white-card list-card">
                     {cardInstallments.map(inst => (
-                      <InstallmentRow key={inst.id} inst={inst} onDelete={deleteInstallment} />
+                      <InstallmentRow key={inst.id} inst={inst} onEdit={item => openModal("installment", item)} onDelete={deleteInstallment} />
                     ))}
                   </div>
                 ) : <Empty title="Nenhum parcelamento neste cartão" />}
@@ -1380,6 +1402,7 @@ function TransactionModal({ initialType, onClose, onSubmit }) {
     category: initialType === "receita" ? "Salario" : "Alimentacao",
     description: "",
     method: "pix",
+    occurredOn: todayDate(),
   });
   const [saving, setSaving] = useState(false);
   const categoryList = entry.type === "receita" ? incomeCats : expenseCats;
@@ -1420,6 +1443,10 @@ function TransactionModal({ initialType, onClose, onSubmit }) {
         </label>
         <label className="text-field">
           <input placeholder="Descrição (opcional)" value={entry.description} onChange={ev => setEntry(e => ({ ...e, description: ev.target.value }))} />
+        </label>
+        <p className="field-label">DATA</p>
+        <label className="text-field">
+          <input required type="date" value={entry.occurredOn} onChange={ev => setEntry(e => ({ ...e, occurredOn: ev.target.value }))} />
         </label>
         <p className="field-label">CATEGORIA</p>
         <CategoryPickerInline
@@ -1654,16 +1681,17 @@ function RecurringModal({ bill, onClose, onSave, onDelete }) {
 
 // ─── Installment modal ────────────────────────────────────────────────────────
 
-function InstallmentModal({ cardId, cards, onClose, onSave }) {
+function InstallmentModal({ cardId, installment, cards, onClose, onSave, onDelete }) {
+  const isEdit = !!installment?.id;
   const [mode, setMode] = useState("new");
   const [form, setForm] = useState({
-    cardId: cardId || cards[0]?.id || "",
-    description: "",
-    category: "Outros",
-    icon: "CreditCard",
-    amountPerInstallment: "",
-    totalInstallments: "",
-    startMonth: todayYM(),
+    cardId: installment?.cardId || cardId || cards[0]?.id || "",
+    description: installment?.description || "",
+    category: installment?.category || "Outros",
+    icon: installment?.icon || "CreditCard",
+    amountPerInstallment: installment?.amountPerInstallment ? String(installment.amountPerInstallment).replace(".", ",") : "",
+    totalInstallments: installment?.totalInstallments || "",
+    startMonth: installment?.startMonth || todayYM(),
   });
   const [saving, setSaving] = useState(false);
 
@@ -1688,14 +1716,14 @@ function InstallmentModal({ cardId, cards, onClose, onSave }) {
     <div className="modal-backdrop">
       <form className="modal" onSubmit={submit}>
         <div className="modal-head">
-          <h2>Nova Parcela</h2>
+          <h2>{isEdit ? "Editar Parcela" : "Nova Parcela"}</h2>
           <button type="button" onClick={onClose}><X size={18} /></button>
         </div>
 
-        <div className="segmented">
+        {!isEdit && <div className="segmented">
           <button type="button" className={mode === "new" ? "active" : ""} onClick={() => setMode("new")}>Nova compra</button>
           <button type="button" className={mode === "existing" ? "active" : ""} onClick={() => { setMode("existing"); setForm(f => ({ ...f, startMonth: todayYM() })); }}>Dívida existente</button>
-        </div>
+        </div>}
 
         <div className="text-field">
           <input required placeholder="Descrição (ex: iPhone 15 Pro)" value={form.description} onChange={ev => setForm(f => ({ ...f, description: ev.target.value }))} />
@@ -1703,17 +1731,17 @@ function InstallmentModal({ cardId, cards, onClose, onSave }) {
 
         <label className="amount-field">
           <span>R$</span>
-          <input required inputMode="decimal" placeholder={mode === "existing" ? "Valor de cada parcela restante" : "Valor de cada parcela"} value={form.amountPerInstallment} onChange={ev => setForm(f => ({ ...f, amountPerInstallment: ev.target.value }))} />
+          <input required inputMode="decimal" placeholder={mode === "existing" ? "Valor de cada parcela restante" : "Valor de cada parcela"} value={form.amountPerInstallment} onChange={ev => setForm(f => ({ ...f, amountPerInstallment: decimalInput(ev.target.value) }))} />
         </label>
 
-        <div style={{ display: "grid", gridTemplateColumns: mode === "new" ? "1fr 1fr" : "1fr", gap: 10, marginBottom: 14 }}>
+        <div style={{ display: "grid", gridTemplateColumns: mode === "new" || isEdit ? "1fr 1fr" : "1fr", gap: 10, marginBottom: 14 }}>
           <div className="text-field" style={{ marginBottom: 0 }}>
             <input required inputMode="numeric" placeholder={mode === "existing" ? "Parcelas restantes" : "Nº de parcelas"} value={form.totalInstallments} onChange={ev => setForm(f => ({ ...f, totalInstallments: ev.target.value.replace(/\D/g, "") }))} />
           </div>
-          {mode === "new" && (
+          {(mode === "new" || isEdit) && (
             <div className="text-field" style={{ marginBottom: 0 }}>
               <select value={form.startMonth} onChange={ev => setForm(f => ({ ...f, startMonth: ev.target.value }))}>
-                {Array.from({ length: 3 }, (_, i) => adjustMonth(todayYM(), i)).map(ym => (
+                {Array.from(new Set([form.startMonth, ...Array.from({ length: 3 }, (_, i) => adjustMonth(todayYM(), i))])).map(ym => (
                   <option key={ym} value={ym}>{ymShort(ym)}</option>
                 ))}
               </select>
@@ -1735,7 +1763,10 @@ function InstallmentModal({ cardId, cards, onClose, onSave }) {
           </>
         )}
 
-        <button className="save-button" disabled={saving}>{saving ? "Salvando..." : "Adicionar parcelamento"}</button>
+        <div className="modal-actions">
+          <button className="save-button" disabled={saving}>{saving ? "Salvando..." : isEdit ? "Salvar alterações" : "Adicionar parcelamento"}</button>
+          {onDelete && <button type="button" className="delete-button" onClick={onDelete}>Excluir parcelamento</button>}
+        </div>
       </form>
     </div>
   );

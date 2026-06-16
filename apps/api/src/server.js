@@ -184,6 +184,14 @@ app.post("/api/installments", async (req, res, next) => {
     res.status(201).json(toInstallment(r.rows[0]));
   } catch (e) { next(e); }
 });
+app.put("/api/installments/:id", async (req, res, next) => {
+  try {
+    const p = installmentSchema.parse(req.body);
+    const r = await query("UPDATE card_installments SET card_id=$1,description=$2,category=$3,icon=$4,amount_per_installment=$5,total_installments=$6,start_month=$7 WHERE id=$8 RETURNING *",[p.cardId,p.description,p.category,p.icon,p.amountPerInstallment,p.totalInstallments,p.startMonth,req.params.id]);
+    if (!r.rows.length) return res.status(404).json({ error: "Not found" });
+    res.json(toInstallment(r.rows[0]));
+  } catch (e) { next(e); }
+});
 app.delete("/api/installments/:id", async (req, res, next) => { try { await query("DELETE FROM card_installments WHERE id=$1",[req.params.id]); res.status(204).end(); } catch (e) { next(e); } });
 
 // Error handler
