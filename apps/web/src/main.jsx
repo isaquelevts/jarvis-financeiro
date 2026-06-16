@@ -33,7 +33,7 @@ import "./styles.css";
 // ─── Constants ────────────────────────────────────────────────────────────────
 
 const API_URL = import.meta.env.VITE_API_URL || (import.meta.env.PROD ? "/api" : "http://localhost:3333/api");
-const BASE_BALANCE = 18561.2;
+const BASE_BALANCE = 0;
 const MONTH_NAMES = ["Janeiro","Fevereiro","Março","Abril","Maio","Junho","Julho","Agosto","Setembro","Outubro","Novembro","Dezembro"];
 const MONTH_SHORT = ["Jan","Fev","Mar","Abr","Mai","Jun","Jul","Ago","Set","Out","Nov","Dez"];
 
